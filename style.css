@@ -1,4 +1,4 @@
-/* GRUNDSTYLING */
+/* 1. GRUNDSTYLING (Behalten) */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f0f9ff;
@@ -26,44 +26,39 @@ header {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* NAVIGATION & MENÜ */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+/* 2. DASHBOARD LAYOUT (Neu: Zwei Spalten) */
+.dashboard-layout {
+    display: flex;
+    flex-direction: row;
     gap: 20px;
     padding: 20px;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.game-card {
-    background: white;
-    border: 3px solid #4caf50;
-    border-radius: 15px;
+.map-section {
+    flex: 1.5;
+    min-width: 400px;
+}
+
+.controls-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.7);
     padding: 20px;
-    cursor: pointer;
-    transition: transform 0.2s;
+    border-radius: 15px;
+    border: 2px solid #4caf50;
 }
 
-.game-card:hover { transform: scale(1.05); }
-.hidden { display: none; }
-
-.back-btn {
-    margin: 20px;
-    padding: 10px 20px;
-    background: #e91e63;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* SCHATZKARTEN-DESIGN (UPDATE) */
+/* 3. SCHATZKARTE (Neu: Mit Hintergrundbild) */
 #map-container {
-    position: relative; /* Basis für absolute Positionierung der Stationen */
-    width: 95%;
-    max-width: 600px; /* Breite deiner Grafik */
-    aspect-ratio: 3 / 4; /* Passt sich der Form deines Bildes an */
-    margin: 20px auto;
-    background-image: url('karte.png'); /* DATEINAME DEINER GRAFIK */
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4; /* Wichtig für die Bildform */
+    background-image: url('karte.png'); /* Achte auf den korrekten Namen */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -73,65 +68,51 @@ header {
 }
 
 .station {
-    position: absolute; /* Ermöglicht punktgenaue Platzierung */
-    width: 15%; 
-    height: 11%;
+    position: absolute;
+    width: 12%;
+    height: 9%;
+    cursor: pointer;
+    transition: transform 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 10;
 }
 
-/* Hover-Effekt: Der Kreis leuchtet leicht auf */
-.station:hover {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 8px #ffd700);
-}
-
-.icon-layer {
-    font-size: 2rem;
-    transition: 0.3s;
-}
-
-/* Optische Hilfe: Gesperrte Stationen sind blasser */
-.station.locked .icon-layer {
-    filter: grayscale(100%);
-    opacity: 0.7;
-}
+.station:hover { transform: scale(1.2); }
 
 .station-label {
     font-size: 0.7rem;
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 2px 5px;
+    background: white;
     border-radius: 5px;
+    padding: 2px 5px;
     margin-top: 5px;
-    pointer-events: none; /* Klicks gehen durch den Text zum Button */
 }
 
-/* INVENTAR / TASCHE */
+/* 4. SPIELE & INVENTAR (Angepasst) */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr; /* In der rechten Spalte lieber untereinander */
+    gap: 15px;
+}
+
+.game-card {
+    background: white;
+    border: 3px solid #4caf50;
+    border-radius: 15px;
+    padding: 15px;
+    cursor: pointer;
+}
+
 .inventory {
     background: #fff;
-    padding: 20px;
-    border-top: 5px solid #4caf50;
-    margin-top: 20px;
-}
-
-#inventory-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-    min-height: 50px;
+    padding: 15px;
+    border-radius: 10px;
 }
 
 .item-slot {
-    font-size: 2.5rem;
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 10px;
-    border: 2px dashed #ccc;
+    font-size: 2rem;
+    margin: 5px;
+    display: inline-block;
 }
+
+.hidden { display: none; }
