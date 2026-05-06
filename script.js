@@ -114,3 +114,15 @@ function updateUI() {
 
 // Starte die Karte beim Laden
 window.onload = initMap;
+function updateUI() {
+    // Sterne anzeigen
+    document.getElementById('points').innerText = gameState.points;
+
+    // Tasche (Inventar) anzeigen
+    const invList = document.getElementById('inventory-list');
+    if (invList) {
+        invList.innerHTML = gameState.inventory.length > 0 
+            ? gameState.inventory.map(emoji => `<span class="item-slot">${emoji}</span>`).join('')
+            : "<p>Deine Tasche ist noch leer. Öffne Truhen!</p>";
+    }
+}
