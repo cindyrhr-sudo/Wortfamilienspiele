@@ -1,43 +1,335 @@
-<main id="app-container">
-    <!-- Dashboard / Startseite -->
-    <section id="menu-view">
-        
-        <div class="dashboard-layout">
-            
-            <!-- Linke Seite: Die Karte -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wort-Abenteuer: Schatzsuche</title>
+    <style>
+        /* --- BASIS STYLING --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f9ff;
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #4caf50;
+            color: white;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #score-display {
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: #ffd700;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: #2e7d32;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            padding: 15px;
+            gap: 20px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* DASHBOARD LAYOUT */
+        #menu-view {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            gap: 20px;
+        }
+
+        /* Linke Seite: Karte */
+        .map-section {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            min-width: 300px;
+        }
+
+        .map-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        #map-container {
+            position: relative;
+            height: 95%; /* Nutzt fast die volle Höhe des Wrappers */
+            aspect-ratio: 3 / 4; 
+            background-image: url('karte.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #e3d5b8;
+            border: 3px solid #8d6e63;
+            border-radius: 10px;
+        }
+
+        /* Stationen */
+        .station {
+            position: absolute;
+            width: 14%;
+            height: 10%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .station:hover { transform: scale(1.1); }
+        .station-icon { font-size: 1.5rem; }
+        .station-label { font-size: 0.6rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 2px; border-radius: 4px; }
+
+        /* Rechte Seite: Steuerung & Spiele */
+        .controls-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .inventory, .game-selection {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #4caf50;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .game-card {
+            background: #fff;
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .game-card:hover { background: #e8f5e9; transform: translateY(-2px); }
+        .game-card span { font-size: 1.5rem; }
+        .game-card strong { font-size: 0.85rem; }
+
+        .hidden { display: none; }
+
+        /* SPIEL-MODUS */
+        #game-view {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #f0f9ff;
+            z-index: 200;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Wort-Abenteuer</h1>
+        <div id="score-display">Sterne: <span id="points">0</span> ⭐</div>
+    </header>
+
+    <main>
+        <section id="menu-view">
             <div class="map-section">
-                <h2>Deine Schatzkarte</h2>
-                <div id="map-container">
-                    <!-- Bild wird via CSS geladen, Stationen via JS -->
+                <h2>Schatzkarte</h2>
+                <div class="map-wrapper">
+                    <div id="map-container"></div>
                 </div>
             </div>
 
-            <!-- Rechte Seite: Steuerung & Inventar -->
             <div class="controls-section">
-                
                 <div class="inventory">
                     <h3>Deine Tasche</h3>
                     <div id="inventory-list"></div>
                 </div>
 
                 <div class="game-selection">
-                    <h3>Sterne verdienen:</h3>
-                    <div class="grid">
-                        <button class="game-card" onclick="loadGame('markieren')">
-                            <h3>🔍 Wortstamm-Markierer</h3>
+                    <h3>Sterne sammeln</h3>
+                    <div class="game-grid">
+                        <button class="game-card" onclick="loadGame('baum')">
+                            <span>🌳</span>
+                            <strong>Wortstamm-Baum</strong>
                         </button>
-                        <!-- Platz für weitere Spiele-Buttons -->
+                        <button class="game-card" onclick="loadGame('labor')">
+                            <span>🧪</span>
+                            <strong>Wort-Labor</strong>
+                        </button>
+                        <button class="game-card" onclick="loadGame('eindringling')">
+                            <span>🕵️</span>
+                            <strong>Der Eindringling</strong>
+                        </button>
+                        <button class="game-card" onclick="loadGame('angeln')">
+                            <span>🎣</span>
+                            <strong>Wortstamm-Angeln</strong>
+                        </button>
                     </div>
                 </div>
+            </div>
+        </section>
 
-            </div> <!-- Ende controls-section -->
-        </div> <!-- Ende dashboard-layout -->
+        <section id="game-view" class="hidden">
+            <button onclick="showMenu()" class="back-btn">⬅ Zurück zur Karte</button>
+            <div id="game-content" class="game-box"></div>
+        </section>
+    </main>
 
-    </section>
+    <script>
+        let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || {
+            points: 50,
+            stations: [
+                { id: 1, name: "Schiff", status: "locked", emoji: "🚢", top: "82%", left: "20%" },
+                { id: 2, name: "Strand", status: "locked", emoji: "🐚", top: "70%", left: "65%" },
+                { id: 3, name: "Dschungel", status: "locked", emoji: "🌴", top: "55%", left: "40%" },
+                { id: 4, name: "Berg", status: "locked", emoji: "🏔️", top: "40%", left: "30%" },
+                { id: 5, name: "Schatz", status: "locked", emoji: "💰", top: "20%", left: "55%" }
+            ],
+            inventory: []
+        };
 
-    <!-- Spiel-Bereich bleibt gleich -->
-    <section id="game-view" class="hidden">
-        <button onclick="showMenu()" class="back-btn">⬅ Zurück zur Karte</button>
-        <div id="game-content"></div>
-    </section>
-</main>
+        function showMenu() {
+            document.getElementById('menu-view').classList.remove('hidden');
+            document.getElementById('game-view').classList.add('hidden');
+            renderMap();
+        }
+
+        function loadGame(gameType) {
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('game-view').classList.remove('hidden');
+            
+            const container = document.getElementById('game-content');
+            let content = "";
+
+            switch(gameType) {
+                case 'baum':
+                    content = `<h2>🌳 Wortstamm-Baum</h2><p>Ziehe die Blätter auf den richtigen Baumstamm!</p>`;
+                    break;
+                case 'labor':
+                    content = `<h2>🧪 Wort-Labor</h2><p>Baue Wörter aus Präfix, Stamm und Suffix.</p>`;
+                    break;
+                case 'eindringling':
+                    content = `<h2>🕵️ Der Eindringling</h2><p>Welches Wort passt nicht zur Wortfamilie?</p>`;
+                    break;
+                case 'angeln':
+                    content = `<h2>🎣 Wortstamm-Angeln</h2><p>Fang schnell die richtigen Wörter ein!</p>`;
+                    break;
+            }
+
+            container.innerHTML = content + `
+                <div style="margin-top:40px; border-top: 2px dashed #ccc; padding-top:20px;">
+                    <p>Hier programmieren wir als Nächstes die Spielmechanik.</p>
+                    <button onclick="simulateWin()" style="padding: 15px 30px; background: #4caf50; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem;">
+                        Sieg testen (+5 ⭐)
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderMap() {
+            const container = document.getElementById('map-container');
+            if (!container) return;
+            container.innerHTML = gameState.stations.map(s => `
+                <div class="station ${s.status}" style="top: ${s.top}; left: ${s.left};" onclick="handleStationClick(${s.id})">
+                    <div class="station-icon">${s.status === 'opened' ? s.emoji : (s.status === 'unlocked' ? '🎁' : '🔒')}</div>
+                    <span class="station-label">${s.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function handleStationClick(id) {
+            const s = gameState.stations.find(st => st.id === id);
+            if (s.status === 'locked' && confirm(`${s.name} für 20 Sterne freischalten?`)) {
+                if (gameState.points >= 20) { gameState.points -= 20; s.status = 'unlocked'; saveAndRefresh(); }
+                else alert("Zu wenig Sterne!");
+            } else if (s.status === 'unlocked' && confirm(`Truhe in ${s.name} für 10 Sterne öffnen?`)) {
+                if (gameState.points >= 10) { gameState.points -= 10; s.status = 'opened'; gameState.inventory.push(s.emoji); saveAndRefresh(); }
+                else alert("Zu wenig Sterne!");
+            }
+        }
+
+        function simulateWin() {
+            gameState.points += 5;
+            saveAndRefresh();
+            showMenu();
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('wortAbenteuerState', JSON.stringify(gameState));
+            updateUI();
+            renderMap();
+        }
+
+        function updateUI() {
+            document.getElementById('points').innerText = gameState.points;
+            const invList = document.getElementById('inventory-list');
+            invList.innerHTML = gameState.inventory.length > 0 
+                ? gameState.inventory.map(e => `<span style="font-size:1.8rem; margin:2px;">${e}</span>`).join('')
+                : `<p style="font-size: 0.8rem; color: #888;">Noch leer...</p>`;
+        }
+
+        window.onload = () => { updateUI(); renderMap(); };
+    </script>
+</body>
+</html>
