@@ -1,56 +1,43 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wort-Abenteuer: Schatzsuche</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <header>
-        <h1>Wort-Abenteuer: Schatzsuche</h1>
-        <div id="score-display">Sterne: <span id="points">0</span> ⭐</div>
-    </header>
-
-    <main id="app-container">
-        <!-- Dashboard / Startseite -->
-        <section id="menu-view">
+<main id="app-container">
+    <!-- Dashboard / Startseite -->
+    <section id="menu-view">
+        
+        <div class="dashboard-layout">
             
-            <!-- NEU: Hier wird die Schatzkarte gezeichnet -->
-            <h2>Deine Schatzkarte</h2>
-            <div id="map-container">
-                <!-- JavaScript füllt diesen Bereich automatisch -->
-            </div>
-
-            <!-- NEU: Deine Tasche für Emojis -->
-            <div class="inventory">
-                <h3>Deine Tasche</h3>
-                <div id="inventory-list">
-                    <!-- Hier erscheinen deine Belohnungen -->
+            <!-- Linke Seite: Die Karte -->
+            <div class="map-section">
+                <h2>Deine Schatzkarte</h2>
+                <div id="map-container">
+                    <!-- Bild wird via CSS geladen, Stationen via JS -->
                 </div>
             </div>
 
-            <hr>
+            <!-- Rechte Seite: Steuerung & Inventar -->
+            <div class="controls-section">
+                
+                <div class="inventory">
+                    <h3>Deine Tasche</h3>
+                    <div id="inventory-list"></div>
+                </div>
 
-            <h2>Wähle ein Spiel, um Sterne zu verdienen:</h2>
-            <div class="grid">
-                <button class="game-card" onclick="loadGame('markieren')">
-                    <h3>🔍 Wortstamm-Markierer</h3>
-                    <p>Verdiene Sterne durch Wissen!</p>
-                </button>
-            </div>
-        </section>
+                <div class="game-selection">
+                    <h3>Sterne verdienen:</h3>
+                    <div class="grid">
+                        <button class="game-card" onclick="loadGame('markieren')">
+                            <h3>🔍 Wortstamm-Markierer</h3>
+                        </button>
+                        <!-- Platz für weitere Spiele-Buttons -->
+                    </div>
+                </div>
 
-        <!-- Spiel-Bereich -->
-        <section id="game-view" class="hidden">
-            <button onclick="showMenu()" class="back-btn">⬅ Zurück zur Karte</button>
-            <div id="game-content">
-                <!-- Hier wird der Code für das jeweilige Spiel geladen -->
-            </div>
-        </section>
-    </main>
+            </div> <!-- Ende controls-section -->
+        </div> <!-- Ende dashboard-layout -->
 
-    <script src="script.js"></script>
-</body>
-</html>
+    </section>
+
+    <!-- Spiel-Bereich bleibt gleich -->
+    <section id="game-view" class="hidden">
+        <button onclick="showMenu()" class="back-btn">⬅ Zurück zur Karte</button>
+        <div id="game-content"></div>
+    </section>
+</main>
