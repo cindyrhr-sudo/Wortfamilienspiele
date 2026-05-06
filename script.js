@@ -1,94 +1,87 @@
-// Variablen für das Belohnungssystem
-let points = localStorage.getItem('wortPunkte') ? parseInt(localStorage.getItem('wortPunkte')) : 0;
-updateScoreDisplay();
+/**
+ * DATENSTRUKTUR & INITIALISIERUNG
+ * Wir laden den Spielstand oder erstellen einen neuen, falls keiner existiert.
+ */
+let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || {
+    points: 0,
+    stations: [
+        { id: 1, name: "Schiff", status: "locked", emoji: "🚢", top: "88%", left: "25%" },
+        { id: 2, name: "Strand", status: "locked", emoji: "🐚", top: "76%", left: "65%" },
+        { id: 3, name: "Wald", status: "locked", emoji: "🌳", top: "62%", left: "45%" },
+        { id: 4, name: "Höhle", status: "locked", emoji: "💎", top: "45%", left: "30%" }
+        // Hier können weitere Stationen basierend auf der Grafik ergänzt werden
+    ],
+    inventory: []
+};
 
-// Navigation: Menü anzeigen
+/**
+ * NAVIGATION
+ */
 function showMenu() {
     document.getElementById('menu-view').classList.remove('hidden');
     document.getElementById('game-view').classList.add('hidden');
-    document.getElementById('game-content').innerHTML = ''; // Spielinhalt leeren
+    document.getElementById('game-content').innerHTML = '';
+    renderMap(); // Karte neu zeichnen, falls sich etwas geändert hat
 }
 
-// Navigation: Spiel laden
 function loadGame(gameType) {
     document.getElementById('menu-view').classList.add('hidden');
     document.getElementById('game-view').classList.remove('hidden');
     
     const container = document.getElementById('game-content');
 
-    // PLATZHALTER FÜR DEINE SPIELE-LOGIK
     if (gameType === 'markieren') {
-        container.innerHTML = '<h2>Markiere den Wortstamm</h2><p>Hier programmieren wir als nächstes das Markier-Tool...</p>';
-        // Hier rufen wir später die Funktion für Spiel 1 auf
+        container.innerHTML = '<h2>🔍 Wortstamm markieren</h2><p>Markiere den Stamm! (Bald verfügbar)</p>';
+        // Hier folgt später der Aufruf: startMarkierSpiel();
     } else if (gameType === 'labor') {
-        container.innerHTML = '<h2>Willkommen im Wort-Labor</h2><p>Hier programmieren wir das Baukasten-Spiel...</p>';
-        // Hier rufen wir später die Funktion für Spiel 2 auf
+        container.innerHTML = '<h2>🧪 Wort-Labor</h2><p>Baue Wörter! (Bald verfügbar)</p>';
     }
 }
 
-// Belohnungs-Funktion: Kann von jedem Spiel aufgerufen werden
-function addPoints(amount) {
-    points += amount;
-    localStorage.setItem('wortPunkte', points); // Speichern im Browser
-    updateScoreDisplay();
-}
-
-function updateScoreDisplay() {
-    document.getElementById('points').innerText = points;
-}
-// Datenstruktur für den Fortschritt
-let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || {
-    points: 0,
-    stations: [
-        { id: 1, name: "Wald", status: "locked", emoji: "🌲" },
-        { id: 2, name: "Höhle", status: "locked", emoji: "💎" },
-        { id: 3, name: "Vulkan", status: "locked", emoji: "🔥" }
-    ],
-    inventory: []
-};
-
-// Initialisierung
-function initMap() {
-    updateUI();
-    renderMap();
-}
-
-// Karte zeichnen
+/**
+ * SCHATZKARTEN-LOGIK
+ */
 function renderMap() {
     const container = document.getElementById('map-container');
-    if (!container) return; // Nur ausführen, wenn wir auf der Startseite sind
+    if (!container) return;
 
-    container.innerHTML = gameState.stations.map(s => `
-        <div class="station ${s.status}">
-            <div class="icon">${s.status === 'opened' ? '🔓' : '🔒'}</div>
-            <span>${s.name}</span>
-            ${renderStationButton(s)}
+    container.innerHTML = gameState.stations.map((s) => `
+        <div class="station ${s.status}" 
+             id="station-${s.id}" 
+             style="top: ${s.top}; left: ${s.left};"
+             onclick="handleStationClick(${s.id})">
+            <div class="icon-layer">
+                ${s.status === 'opened' ? s.emoji : (s.status === 'unlocked' ? '🎁' : '🔒')}
+            </div>
+            <span class="station-label">${s.name}</span>
         </div>
     `).join('');
 }
 
-function renderStationButton(s) {
-    if (s.status === 'locked') {
-        return `<button onclick="unlockStation(${s.id})">📍 Freikaufen (20⭐)</button>`;
-    } else if (s.status === 'unlocked') {
-        return `<button onclick="openChest(${s.id})">🎁 Öffnen (10⭐)</button>`;
-    }
-    return `<span>Gefunden: ${s.emoji}</span>`;
+function handleStationClick(id) {
+    const s = gameState.stations.find(st => st.id === id);
+    if (s.status === 'locked') unlockStation(id);
+    else if (s.status === 'unlocked') openChest(id);
 }
 
-// Logik: Freischalten
+/**
+ * BELOHNUNGSSYSTEM (TRANSAKTIONEN)
+ */
+function addPoints(amount) {
+    gameState.points += amount;
+    saveAndRefresh();
+}
+
 function unlockStation(id) {
     if (gameState.points >= 20) {
         gameState.points -= 20;
-        const s = gameState.stations.find(st => st.id === id);
-        s.status = 'unlocked';
+        gameState.stations.find(st => st.id === id).status = 'unlocked';
         saveAndRefresh();
     } else {
-        alert("Du brauchst mehr Sterne!");
+        alert("Sammle noch mehr Sterne in den Spielen!");
     }
 }
 
-// Logik: Truhe öffnen
 function openChest(id) {
     if (gameState.points >= 10) {
         gameState.points -= 10;
@@ -97,10 +90,13 @@ function openChest(id) {
         gameState.inventory.push(s.emoji);
         saveAndRefresh();
     } else {
-        alert("Nicht genug Sterne für die Truhe!");
+        alert("Du brauchst 10 Sterne für diese Truhe!");
     }
 }
 
+/**
+ * HILFSFUNKTIONEN
+ */
 function saveAndRefresh() {
     localStorage.setItem('wortAbenteuerState', JSON.stringify(gameState));
     updateUI();
@@ -108,17 +104,11 @@ function saveAndRefresh() {
 }
 
 function updateUI() {
-    document.getElementById('points').innerText = gameState.points;
-    // Hier könnte man auch das Inventar im HTML aktualisieren
-}
+    // Sterne im Header
+    const pointsDisplay = document.getElementById('points');
+    if (pointsDisplay) pointsDisplay.innerText = gameState.points;
 
-// Starte die Karte beim Laden
-window.onload = initMap;
-function updateUI() {
-    // Sterne anzeigen
-    document.getElementById('points').innerText = gameState.points;
-
-    // Tasche (Inventar) anzeigen
+    // Inventar (Tasche)
     const invList = document.getElementById('inventory-list');
     if (invList) {
         invList.innerHTML = gameState.inventory.length > 0 
@@ -126,3 +116,9 @@ function updateUI() {
             : "<p>Deine Tasche ist noch leer. Öffne Truhen!</p>";
     }
 }
+
+// Startet die App, sobald das Fenster geladen wurde
+window.onload = function() {
+    updateUI();
+    renderMap();
+};
