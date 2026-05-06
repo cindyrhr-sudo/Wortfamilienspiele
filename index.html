@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wort-Abenteuer: Wortstämme & Familien</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Wort-Abenteuer 4. Klasse</h1>
+        <div id="score-display">Sterne: <span id="points">0</span> ⭐</div>
+    </header>
+
+    <main id="app-container">
+        <!-- Startseite -->
+        <section id="menu-view">
+            <h2>Wähle ein Spiel:</h2>
+            <div class="grid">
+                <button class="game-card" onclick="loadGame('markieren')">
+                    <h3>🔍 Wortstamm-Markierer</h3>
+                    <p>Finde den Kern des Wortes.</p>
+                </button>
+                <button class="game-card" onclick="loadGame('labor')">
+                    <h3>🧪 Wort-Labor</h3>
+                    <p>Baue Wörter zusammen.</p>
+                </button>
+                <!-- Platzhalter für weitere Spiele -->
+            </div>
+        </section>
+
+        <!-- Spiel-Bereich -->
+        <section id="game-view" class="hidden">
+            <button onclick="showMenu()" class="back-btn">⬅ Zurück zum Menü</button>
+            <div id="game-content">
+                <!-- HIER WIRD DER SPIELECODE EINGEFÜGT -->
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
