@@ -3,38 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wort-Abenteuer: Wortstämme & Familien</title>
+    <title>Wort-Abenteuer: Schatzsuche</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>Wort-Abenteuer 4. Klasse</h1>
+        <h1>Wort-Abenteuer: Schatzsuche</h1>
         <div id="score-display">Sterne: <span id="points">0</span> ⭐</div>
     </header>
 
     <main id="app-container">
-        <!-- Startseite -->
+        <!-- Dashboard / Startseite -->
         <section id="menu-view">
-            <h2>Wähle ein Spiel:</h2>
+            
+            <!-- NEU: Hier wird die Schatzkarte gezeichnet -->
+            <h2>Deine Schatzkarte</h2>
+            <div id="map-container">
+                <!-- JavaScript füllt diesen Bereich automatisch -->
+            </div>
+
+            <!-- NEU: Deine Tasche für Emojis -->
+            <div class="inventory">
+                <h3>Deine Tasche</h3>
+                <div id="inventory-list">
+                    <!-- Hier erscheinen deine Belohnungen -->
+                </div>
+            </div>
+
+            <hr>
+
+            <h2>Wähle ein Spiel, um Sterne zu verdienen:</h2>
             <div class="grid">
                 <button class="game-card" onclick="loadGame('markieren')">
                     <h3>🔍 Wortstamm-Markierer</h3>
-                    <p>Finde den Kern des Wortes.</p>
+                    <p>Verdiene Sterne durch Wissen!</p>
                 </button>
-                <button class="game-card" onclick="loadGame('labor')">
-                    <h3>🧪 Wort-Labor</h3>
-                    <p>Baue Wörter zusammen.</p>
-                </button>
-                <!-- Platzhalter für weitere Spiele -->
             </div>
         </section>
 
         <!-- Spiel-Bereich -->
         <section id="game-view" class="hidden">
-            <button onclick="showMenu()" class="back-btn">⬅ Zurück zum Menü</button>
+            <button onclick="showMenu()" class="back-btn">⬅ Zurück zur Karte</button>
             <div id="game-content">
-                <!-- HIER WIRD DER SPIELECODE EINGEFÜGT -->
+                <!-- Hier wird der Code für das jeweilige Spiel geladen -->
             </div>
         </section>
     </main>
