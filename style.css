@@ -1,3 +1,4 @@
+/* GRUNDSTYLING */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f0f9ff;
@@ -22,13 +23,15 @@ header {
     padding: 10px 20px;
     border-radius: 20px;
     color: #2e7d32;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+/* NAVIGATION & MENÜ */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
-    padding: 40px;
+    padding: 20px;
 }
 
 .game-card {
@@ -40,10 +43,7 @@ header {
     transition: transform 0.2s;
 }
 
-.game-card:hover {
-    transform: scale(1.05);
-}
-
+.game-card:hover { transform: scale(1.05); }
 .hidden { display: none; }
 
 .back-btn {
@@ -55,31 +55,83 @@ header {
     border-radius: 5px;
     cursor: pointer;
 }
-/* Schatzkarten-Design */
+
+/* SCHATZKARTEN-DESIGN (UPDATE) */
 #map-container {
-    display: flex;
-    justify-content: space-around;
-    padding: 30px;
-    background: #e3f2fd;
-    border-radius: 20px;
-    margin: 20px;
+    position: relative; /* Basis für absolute Positionierung der Stationen */
+    width: 95%;
+    max-width: 600px; /* Breite deiner Grafik */
+    aspect-ratio: 3 / 4; /* Passt sich der Form deines Bildes an */
+    margin: 20px auto;
+    background-image: url('karte.png'); /* DATEINAME DEINER GRAFIK */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 5px solid #8d6e63;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
 .station {
+    position: absolute; /* Ermöglicht punktgenaue Platzierung */
+    width: 15%; 
+    height: 11%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
 }
 
-.icon { font-size: 3rem; filter: grayscale(100%); transition: 0.3s; }
-.unlocked .icon { filter: grayscale(0%); }
+/* Hover-Effekt: Der Kreis leuchtet leicht auf */
+.station:hover {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 8px #ffd700);
+}
 
+.icon-layer {
+    font-size: 2rem;
+    transition: 0.3s;
+}
+
+/* Optische Hilfe: Gesperrte Stationen sind blasser */
+.station.locked .icon-layer {
+    filter: grayscale(100%);
+    opacity: 0.7;
+}
+
+.station-label {
+    font-size: 0.7rem;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 5px;
+    border-radius: 5px;
+    margin-top: 5px;
+    pointer-events: none; /* Klicks gehen durch den Text zum Button */
+}
+
+/* INVENTAR / TASCHE */
 .inventory {
     background: #fff;
-    padding: 15px;
-    border-top: 2px solid #4caf50;
+    padding: 20px;
+    border-top: 5px solid #4caf50;
     margin-top: 20px;
 }
 
-.item-slot { font-size: 1.5rem; margin: 5px; display: inline-block; }
+#inventory-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    min-height: 50px;
+}
+
+.item-slot {
+    font-size: 2.5rem;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px dashed #ccc;
+}
