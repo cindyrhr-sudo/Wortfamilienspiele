@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>Wort-Labor</title>
+    <style>
+        :root {
+            --prefix-color: #42a5f5;
+            --stem-color: #fdd835;
+            --suffix-color: #ef5350;
+            --bg-color: #f8fafc;
+            --marker-opacity: 0.6;
+            --accent-green: #4caf50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: #334155;
+            touch-action: none;
+        }
+
+        /* Startbildschirm */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
+            z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #start-screen::before {
+            content: "🧪";
+            position: absolute;
+            font-size: 40vw;
+            opacity: 0.1; 
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .mode-btn {
+            background: white; border: none; padding: 20px; margin: 10px; width: 100%; max-width: 450px;
+            border-radius: 24px; font-size: 1.5rem; font-weight: 800; color: #1e293b;
+            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .mode-btn:hover { transform: translateY(-5px); border-color: var(--accent-green); }
+        .mode-btn span { display: block; font-size: 0.95rem; font-weight: 500; margin-top: 5px; color: #64748b; }
+
+        .lab-container {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: space-around; width: 100%; max-width: 1100px; padding: 10px; box-sizing: border-box;
+        }
+
+        #progress-bar {
+            background: white; padding: 8px 25px; border-radius: 20px;
+            font-weight: 700; color: #475569; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-size: 1.2rem;
+        }
+
+        #word-display {
+            font-size: clamp(3rem, 12vw, 6rem);
+            font-weight: 900;
+            display: flex;
+            padding: 20px 40px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            border: 8px solid #cbd5e1;
+            cursor: crosshair;
+            max-width: 95vw;
+        }
+
+        .char-unit { 
+            position: relative; padding: 0 2px; z-index: 5; 
+            display: inline-block; border-radius: 12px; border: 5px solid transparent; 
+        }
+        .char-unit.error { border-color: #ef4444 !important; background: #fee2e2; }
+
+        .marker {
+            position: absolute; bottom: 15%; left: 0; width: 100%; height: 50%;
+            z-index: -1; border-radius: 4px; pointer-events: none;
+        }
+        .mark-prefix { background: var(--prefix-color); opacity: var(--marker-opacity); }
+        .mark-stem { background: var(--stem-color); opacity: var(--marker-opacity); }
+        .mark-suffix { background: var(--suffix-color); opacity: var(--marker-opacity); }
+
+        .tool-bar {
+            display: flex; gap: 15px; padding: 15px 30px;
+            background: white; border-radius: 60px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .marker-pen {
+            width: 70px; height: 100px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; transition: 0.2s;
+        }
+        .marker-pen.active { transform: translateY(-15px) scale(1.1); }
+        .pen-body {
+            width: 45px; height: 70px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.75rem; font-weight: 800;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .pen-tip { width: 22px; height: 15px; background: #334155; border-radius: 4px 4px 0 0; }
+        .pen-prefix .pen-body { background: var(--prefix-color); }
+        .pen-stem .pen-body { background: var(--stem-color); color: #854d0e; }
+        .pen-suffix .pen-body { background: var(--suffix-color); }
+        .pen-eraser .pen-body { background: #94a3b8; font-size: 1.5rem; }
+
+        #variation-box {
+            display: none; width: 100%; padding: 20px; background: #f0fdf4;
+            border-radius: 25px; border: 3px dashed var(--accent-green); text-align: center;
+            box-sizing: border-box;
+        }
+
+        .variation-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+        .variation-btn {
+            background: white; border: 3px solid #cbd5e1; padding: 15px 30px;
+            border-radius: 20px; cursor: pointer; font-weight: 800; font-size: 1.8rem;
+            transition: 0.2s; min-width: 100px;
+        }
+        .variation-btn.selected { border-color: var(--accent-green); background: #dcfce7; }
+        .variation-btn.error { border-color: #ef4444; background: #fee2e2; }
+
+        #check-btn {
+            background: var(--accent-green); color: white; border: none; padding: 18px 60px;
+            font-size: 1.6rem; border-radius: 40px; cursor: pointer; font-weight: 800;
+            box-shadow: 0 6px 0 #2e7d32; margin-bottom: 5px;
+        }
+
+        #win-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; display: none; z-index: 3000;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body onmouseup="stopPainting()" onmouseleave="stopPainting()">
+
+    <div id="start-screen">
+        <h1 style="font-size: 3.5rem; color: #0f172a; margin: 0;">Wort-Labor 🧪</h1>
+        <p style="font-size: 1.2rem; color: #475569; margin-bottom: 30px;">Finde die Bausteine der Wörter!</p>
+        <button class="mode-btn" onclick="startGame(1)">🚀 STUFE 1<span>Nur Wortstamm finden</span></button>
+        <button class="mode-btn" onclick="startGame(2)">🧪 STUFE 2<span>Alle Teile markieren</span></button>
+        <button class="mode-btn" onclick="startGame(3)">🧠 STUFE 3<span>Profi-Analyse</span></button>
+    </div>
+
+    <div class="lab-container">
+        <div id="progress-bar">Wort 1 / 5</div>
+        <div id="feedback-message" style="color: #e11d48; font-weight: 800;"></div>
+        
+        <div id="word-display"></div>
+
+        <div id="variation-box">
+            <p style="font-weight: 800; color: #166534; font-size: 1.4rem;">Welche Silben passen noch vorne dran?</p>
+            <div id="variation-list" class="variation-list"></div>
+        </div>
+
+        <div class="tool-bar" id="tool-bar">
+            <div id="pen-prefix" class="marker-pen pen-prefix" onclick="selectPen('prefix')">
+                <div class="pen-tip"></div><div class="pen-body">VOR</div>
+            </div>
+            <div id="pen-stem" class="marker-pen pen-stem active" onclick="selectPen('stem')">
+                <div class="pen-tip"></div><div class="pen-body">STAMM</div>
+            </div>
+            <div id="pen-suffix" class="marker-pen pen-suffix" onclick="selectPen('suffix')">
+                <div class="pen-tip"></div><div class="pen-body">ENDE</div>
+            </div>
+            <div id="pen-eraser" class="marker-pen pen-eraser" onclick="selectPen('none')">
+                <div class="pen-tip" style="background:#475569"></div><div class="pen-body">🧽</div>
+            </div>
+        </div>
+
+        <button id="check-btn" onclick="checkStep()">Prüfen 🔍</button>
+    </div>
+
+    <div id="win-screen">
+        <h1 style="font-size: 3rem; color: #166534;">Ergebnis</h1>
+        <div id="stars-result" style="font-size: 5rem; color: #eab308; margin-bottom: 20px;"></div>
+        <p id="points-display" style="font-size: 1.8rem; font-weight: 800; color: #475569;"></p>
+        <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Weiter zur Karte</button>
+    </div>
+
+    <script>
+        const wordPool = [
+            { word: "verlaufen", prefix: "ver", stem: "lauf", suffix: "en", alternates: [{val: "be", ok: true}, {val: "ent", ok: true}, {val: "auf", ok: true}, {val: "miss", ok: false}] },
+            { word: "beifahren", prefix: "bei", stem: "fahr", suffix: "en", alternates: [{val: "ab", ok: true}, {val: "ge", ok: false}, {val: "mit", ok: true}, {val: "ver", ok: true}] },
+            { word: "verspielt", prefix: "ver", stem: "spiel", suffix: "t", alternates: [{val: "ab", ok: true}, {val: "be", ok: true}, {val: "um", ok: false}, {val: "vor", ok: true}] },
+            { word: "Ausfahrt", prefix: "Aus", stem: "fahr", suffix: "t", alternates: [{val: "Vor", ok: true}, {val: "Be", ok: false}, {val: "Ein", ok: true}, {val: "Ab", ok: true}] },
+            { word: "Ankunft", prefix: "An", stem: "kunf", suffix: "t", alternates: [{val: "Her", ok: true}, {val: "Zu", ok: true}, {val: "Aus", ok: true}, {val: "Ver", ok: false}] }
+        ];
+
+        let currentLevel = 1;
+        let roundStep = 0; 
+        let totalStars = 0;
+        let isPainting = false;
+        let activePen = 'stem';
+        let currentWordData = null;
+        let charMarks = [];
+        let variationsSelected = [];
+        let sessionWords = [];
+        let currentWordFailed = false;
+
+        function startGame(level) {
+            currentLevel = parseInt(level);
+            roundStep = 0; totalStars = 0;
+            sessionWords = [...wordPool].sort(() => 0.5 - Math.random()).slice(0, 5);
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('pen-prefix').classList.toggle('hidden', currentLevel === 1);
+            document.getElementById('pen-suffix').classList.toggle('hidden', currentLevel === 1);
+            loadWord();
+        }
+
+        function loadWord() {
+            currentWordData = sessionWords[roundStep];
+            currentWordFailed = false;
+            document.getElementById('progress-bar').innerText = `Wort ${roundStep + 1} / 5`;
+            document.getElementById('feedback-message').innerText = "";
+            const display = document.getElementById('word-display');
+            display.innerHTML = '';
+            charMarks = new Array(currentWordData.word.length).fill(null);
+            variationsSelected = [];
+            document.getElementById('variation-box').style.display = 'none';
+            document.getElementById('check-btn').innerText = "Prüfen 🔍";
+
+            currentWordData.word.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.className = 'char-unit';
+                span.innerText = char;
+                span.id = `char-${index}`;
+                const marker = document.createElement('div');
+                marker.className = 'marker';
+                marker.id = `marker-${index}`;
+                span.appendChild(marker);
+
+                span.onmousedown = (e) => { startPainting(); paintChar(index); e.preventDefault(); };
+                span.onmouseenter = () => { if(isPainting) paintChar(index); };
+                span.ontouchstart = (e) => { startPainting(); paintChar(index); e.preventDefault(); };
+                display.appendChild(span);
+            });
+
+            display.addEventListener('touchmove', (e) => {
+                if(!isPainting) return;
+                const touch = e.touches[0];
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                if(el && el.id && el.id.startsWith('char-')) {
+                    paintChar(parseInt(el.id.split('-')[1]));
+                }
+                e.preventDefault();
+            }, {passive: false});
+        }
+
+        function startPainting() { isPainting = true; }
+        function stopPainting() { isPainting = false; }
+
+        function selectPen(type) {
+            activePen = type;
+            document.querySelectorAll('.marker-pen').forEach(p => p.classList.remove('active'));
+            const penId = type === 'none' ? 'eraser' : type;
+            document.getElementById(`pen-${penId}`).classList.add('active');
+        }
+
+        function paintChar(index) {
+            const marker = document.getElementById(`marker-${index}`);
+            const charUnit = document.getElementById(`char-${index}`);
+            marker.className = 'marker mark-' + activePen;
+            charMarks[index] = activePen === 'none' ? null : activePen;
+            charUnit.classList.remove('error');
+        }
+
+        function checkStep() {
+            const data = currentWordData;
+            const preLen = data.prefix.length;
+            const stemLen = data.stem.length;
+            const msg = document.getElementById('feedback-message');
+            let errors = 0;
+
+            charMarks.forEach((mark, i) => {
+                let expected = null;
+                if (i < preLen) expected = (currentLevel >= 2) ? 'prefix' : null;
+                else if (i < preLen + stemLen) expected = 'stem';
+                else expected = (currentLevel >= 2) ? 'suffix' : null;
+
+                const charUnit = document.getElementById(`char-${i}`);
+                if (mark !== expected) {
+                    charUnit.classList.add('error');
+                    errors++;
+                } else {
+                    charUnit.classList.remove('error');
+                }
+            });
+
+            let altErrors = 0;
+            if (currentLevel === 3 && document.getElementById('variation-box').style.display !== 'none') {
+                data.alternates.forEach((alt, idx) => {
+                    const btn = document.querySelectorAll('.variation-btn')[idx];
+                    const isSelected = variationsSelected.includes(idx);
+                    if ((isSelected && !alt.ok) || (!isSelected && alt.ok)) {
+                        btn.classList.add('error');
+                        altErrors++;
+                    } else {
+                        btn.classList.remove('error');
+                    }
+                });
+            }
+
+            if (errors > 0 || altErrors > 0) {
+                msg.innerText = "Da stimmt was noch nicht! 🧐";
+                currentWordFailed = true;
+                return;
+            }
+
+            if (currentLevel === 3 && document.getElementById('variation-box').style.display === 'none') {
+                showVariations();
+                return;
+            }
+
+            if (!currentWordFailed) totalStars += 1;
+            roundStep++;
+            if(roundStep < 5) loadWord();
+            else showFinalResults();
+        }
+
+        function showVariations() {
+            const box = document.getElementById('variation-box');
+            const list = document.getElementById('variation-list');
+            box.style.display = 'block';
+            list.innerHTML = '';
+            currentWordData.alternates.forEach((alt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'variation-btn';
+                btn.innerText = alt.val;
+                btn.onclick = () => {
+                    btn.classList.remove('error');
+                    btn.classList.toggle('selected');
+                    if(variationsSelected.includes(idx)) variationsSelected = variationsSelected.filter(i => i !== idx);
+                    else variationsSelected.push(idx);
+                };
+                list.appendChild(btn);
+            });
+            document.getElementById('check-btn').innerText = "Abschließen";
+        }
+
+        function showFinalResults() {
+            document.getElementById('win-screen').style.display = 'flex';
+            document.getElementById('stars-result').innerText = "⭐".repeat(totalStars) + "☆".repeat(5-totalStars);
+            document.getElementById('points-display').innerText = `${totalStars} von 5 Aufgaben perfekt gelöst!`;
+        }
+
+        function resetToMenu() {
+    // 1. Punkte an das Kontrollzentrum senden
+    if (window.parent && window.parent.addStars) {
+        // Wir rechnen hier: Sterne (0-5) mal 10 = Punkte
+        window.parent.addStars(totalStars * 10); 
+    }
+
+    // 2. Kurz warten (100ms), dann das Menü wieder anzeigen
+    // Das stellt sicher, dass die Punkteverarbeitung abgeschlossen ist
+    setTimeout(() => {
+        if (window.parent && window.parent.showMenu) {
+            window.parent.showMenu();
+        }
+    }, 100);
+}
+    </script>
+</body>
+</html>
