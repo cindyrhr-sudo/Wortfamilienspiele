@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wort-Abenteuer: Kontrollzentrum</title>
+    <title>Wort-Abenteuer: Entdecker-Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4CAF50;
-            --primary-dark: #2E7D32;
-            --accent: #FFD700;
-            --bg-soft: #faf3dc;
+            --primary: #10b981; /* Emerald */
+            --primary-dark: #059669;
+            --accent: #fbbf24; /* Amber */
+            --bg-body: #dbeafe; /* Helles Blau aus der Entdecker-Edition */
+            --card-bg: rgba(255, 255, 255, 0.95);
         }
 
         body {
             font-family: 'Fredoka', sans-serif;
-            background-color: var(--bg-soft);
-            color: #333;
+            background-color: var(--bg-body);
+            color: #1e293b;
             margin: 0;
             height: 100vh;
             display: flex;
@@ -26,11 +27,11 @@
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 2px solid #cbd5e1;
         }
 
         .map-viewport {
@@ -54,20 +55,18 @@
             overflow: hidden;
         }
 
-        /* Der entscheidende Fix: Die Karte skaliert, aber behält das 3:4 Verhältnis */
         #map-container {
             position: relative;
             height: 100%;
             width: auto;
             aspect-ratio: 3 / 4;
-            background-color: #e3d5b8;
+            background-color: #f3e5ab; 
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
-            border: 8px solid white;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            /* Verhindert das Stapeln: Der Container hat immer eine physische Größe */
+            border: 10px solid #e7d8c1;
+            border-radius: 24px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.3);
             min-height: 200px; 
         }
 
@@ -89,44 +88,46 @@
 
         .mini-chest {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            font-size: 1.3rem;
-            background: white;
+            top: -12px;
+            right: -12px;
+            font-size: 1.4rem;
+            background: #fcd34d;
+            border: 2px solid white;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            animation: bounce 2s infinite;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation: float 2s infinite ease-in-out;
         }
 
-        @keyframes bounce {
+        @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
 
         .item-slot {
             background: white;
-            padding: 8px 12px;
+            padding: 6px 12px;
             border-radius: 14px;
             border: 2px solid #e2e8f0;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             margin: 3px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
         }
 
         .game-card-modern {
             transition: all 0.2s ease;
             border: 2px solid transparent;
+            border-bottom-width: 4px;
         }
-        .game-card-modern:hover {
-            border-color: var(--primary);
-            transform: translateX(5px);
-            background-color: #f0fdf4;
+        .game-card-modern:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
         }
 
         .flying-gem {
@@ -140,103 +141,106 @@
 </head>
 <body>
 
-    <header class="bg-white px-6 py-3 flex justify-between items-center shadow-sm z-50">
-        <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-400">
-            🌳 Wort-Abenteuer
+    <header class="bg-slate-800 px-6 py-3 flex justify-between items-center shadow-lg z-50 text-white">
+        <h1 class="text-xl font-bold flex items-center gap-2">
+            <span class="bg-emerald-500 p-1.5 rounded-lg text-2xl">🏝️</span> Wort-Abenteuer
         </h1>
         <div class="flex gap-4 items-center">
-            <div class="bg-green-100 text-green-700 px-4 py-1.5 rounded-full font-bold text-xs">
-                Karte <span id="current-map-num">1</span> / 5
+            <div class="bg-slate-700 text-emerald-400 px-4 py-1 rounded-xl font-bold text-xs border border-slate-600 uppercase tracking-widest">
+                Insel <span id="current-map-num" class="text-lg ml-1">1</span>
             </div>
-            <div class="bg-yellow-400 text-yellow-900 px-5 py-1.5 rounded-full font-bold shadow-sm text-sm">
-                <span id="points">0</span> ⭐
+            <div class="bg-amber-400 text-amber-950 px-5 py-1.5 rounded-xl font-bold shadow-inner text-lg flex items-center gap-2">
+                <span id="points">0</span> <span>⭐</span>
             </div>
         </div>
     </header>
 
     <main class="flex-1 flex p-4 gap-4 overflow-hidden">
+        
         <section class="map-viewport glass-card p-4">
-            <h2 class="text-sm font-semibold mb-2 text-slate-500 text-center uppercase tracking-wider" id="island-name">Geheimnisvolle Insel</h2>
+            <h2 class="text-xs font-bold mb-2 text-slate-500 text-center uppercase tracking-[0.2em]" id="island-name">Geheimnisvolle Insel</h2>
             <div class="map-wrapper">
-                <!-- Der Container für das Kartenbild -->
                 <div id="map-container">
-                    <!-- Stationen werden hier via JS gerendert -->
+                    <!-- Stationen via JS -->
                 </div>
             </div>
         </section>
 
         <section class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
-            <!-- Inventar -->
-            <div class="glass-card p-5 border-l-4 border-green-500">
+            
+            <!-- Rucksack / Tasche -->
+            <div class="glass-card p-5 border-l-8 border-emerald-500">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-slate-800 flex items-center gap-2">🎒 Deine Tasche</h3>
-                    <button onclick="resetGame()" class="text-[10px] uppercase font-bold text-red-400 hover:text-red-600">Reset ♻️</button>
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2">🎒 Dein Rucksack</h3>
+                    <button onclick="resetGame()" class="text-[10px] uppercase font-bold text-slate-400 hover:text-red-500">Reset ♻️</button>
                 </div>
                 <div id="inventory-list" class="flex flex-wrap gap-2 min-h-[50px]">
-                    <p class="text-slate-400 text-xs italic">Noch keine Schätze gefunden...</p>
+                    <p class="text-slate-400 text-xs italic">Noch leer...</p>
                 </div>
             </div>
 
-            <!-- Spiel-Auswahl -->
+            <!-- Missionen -->
             <div class="glass-card p-5">
-                <h3 class="font-bold text-slate-800 mb-3 text-sm">Bereit für ein Abenteuer?</h3>
-                <div class="space-y-2">
-                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel1.html')">
-                        <div class="text-xl bg-green-50 w-10 h-10 flex items-center justify-center rounded-lg">🌳</div>
+                <h3 class="font-bold text-slate-500 mb-4 text-[10px] uppercase tracking-widest">Wähle eine Mission</h3>
+                <div class="space-y-3">
+                    <button class="w-full game-card-modern bg-emerald-100 border-emerald-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel1.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🌳</div>
                         <div>
-                            <div class="font-bold text-slate-800 text-sm">Wortstamm-Baum</div>
-                            <div class="text-[10px] text-slate-500">Level 1: Finde den Kern</div>
+                            <div class="font-bold text-emerald-900 text-sm leading-tight">Wortstamm-Baum</div>
+                            <div class="text-[10px] text-emerald-700">Level 1 • Einfach</div>
                         </div>
                     </button>
-                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel2.html')">
-                        <div class="text-xl bg-orange-50 w-10 h-10 flex items-center justify-center rounded-lg">🧪</div>
+                    
+                    <button class="w-full game-card-modern bg-orange-100 border-orange-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel2.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
                         <div>
-                            <div class="font-bold text-slate-800 text-sm">Wort-Labor</div>
-                            <div class="text-[10px] text-slate-500">Level 2: Zerlege die Wörter</div>
+                            <div class="font-bold text-orange-900 text-sm leading-tight">Wort-Labor</div>
+                            <div class="text-[10px] text-orange-700">Level 2 • Normal</div>
                         </div>
                     </button>
-                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel3.html')">
-                        <div class="text-xl bg-pink-50 w-10 h-10 flex items-center justify-center rounded-lg">🔍</div>
+
+                    <button class="w-full game-card-modern bg-pink-100 border-pink-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel3.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
                         <div>
-                            <div class="font-bold text-slate-800 text-sm">Eindringlinge</div>
-                            <div class="text-[10px] text-slate-500">Level 3: Wortfamilie</div>
+                            <div class="font-bold text-pink-900 text-sm leading-tight">Eindringlinge</div>
+                            <div class="text-[10px] text-pink-700">Level 3 • Wortfamilien</div>
                         </div>
                     </button>
-                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel4.html')">
-                        <div class="text-xl bg-blue-50 w-10 h-10 flex items-center justify-center rounded-lg">📖</div>
+
+                    <button class="w-full game-card-modern bg-sky-100 border-sky-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel4.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">📖</div>
                         <div>
-                            <div class="font-bold text-slate-800 text-sm">Lese-Profi</div>
-                            <div class="text-[10px] text-slate-500">Level 4: Text-Check</div>
+                            <div class="font-bold text-sky-900 text-sm leading-tight">Lese-Profi</div>
+                            <div class="text-[10px] text-sky-700">Level 4 • Mittel</div>
                         </div>
                     </button>
-                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel5.html')">
-                        <div class="text-xl bg-purple-50 w-10 h-10 flex items-center justify-center rounded-lg">✨</div>
+
+                    <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">✨</div>
                         <div>
-                            <div class="font-bold text-slate-800 text-sm">Bonus-Finale</div>
-                            <div class="text-[10px] text-slate-500">Sammle extra Punkte!</div>
+                            <div class="font-bold text-amber-900 text-sm italic leading-tight">Bonus-Arena</div>
+                            <div class="text-[10px] text-amber-700">Sterne sammeln!</div>
                         </div>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Game Iframe Overlay -->
-        <section id="game-view" class="hidden fixed inset-0 bg-white z-[200] flex flex-col p-4">
+        <section id="game-view" class="hidden fixed inset-0 bg-slate-900/95 z-[200] flex flex-col p-4 backdrop-blur-md">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg">⬅ ZURÜCK</button>
-                <div class="font-bold text-slate-400 uppercase text-xs tracking-widest">Abenteuer läuft...</div>
+                <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95">⬅ ZURÜCK</button>
+                <div class="font-bold text-white opacity-50 uppercase text-xs tracking-widest">Abenteuer aktiv...</div>
             </div>
-            <iframe id="game-frame" class="flex-1 w-full rounded-2xl border-none bg-slate-50 shadow-inner"></iframe>
+            <iframe id="game-frame" class="flex-1 w-full rounded-2xl border-none bg-white shadow-2xl"></iframe>
         </section>
     </main>
 
-    <!-- Win Overlay -->
-    <div id="win-overlay" class="hidden fixed inset-0 bg-black/80 z-[1000] flex items-center justify-center p-6 text-center">
-        <div class="bg-white p-8 rounded-[32px] max-w-sm shadow-2xl">
-            <h2 class="text-xl font-bold mb-2">Karte geschafft! 🎉</h2>
-            <p class="text-slate-600 mb-6 text-sm">Du hast alle Schätze auf dieser Insel gefunden.</p>
-            <span id="reward-emoji" class="text-6xl block mb-6">💎</span>
-            <button onclick="startNextMap()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-all">
+    <div id="win-overlay" class="hidden fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-6 text-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-[32px] max-w-sm shadow-2xl border-4 border-emerald-400">
+            <h2 class="text-2xl font-bold mb-2 text-slate-800">Insel geschafft! 🎉</h2>
+            <p class="text-slate-600 mb-6 text-sm font-medium">Du hast alle Schätze auf dieser Insel gehoben!</p>
+            <span id="reward-emoji" class="text-7xl block mb-8 drop-shadow-lg">💎</span>
+            <button onclick="startNextMap()" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-600 transition-all shadow-lg active:translate-y-1">
                 Nächste Insel ⛵
             </button>
         </div>
@@ -244,8 +248,8 @@
 
     <script>
         const mapImages = ['karte.png', 'karte2.png', 'karte3.png', 'karte4.png', 'karte5.png'];
-        const masterTreasures = ["💵", "🏆", "👑", "🦄", "💍", "🔱", "🧿", "✨", "🌈"];
-        const gemEmojis = ["💰", "🐚", "🧚"];
+        const masterTreasures = ["🏆", "👑", "🦄", "💍", "🔱", "🧿", "✨", "🌈", "🗿"];
+        const gemEmojis = ["💎", "🪙", "🐚", "🧚"];
 
         const initialGameState = {
             points: 50,
@@ -281,20 +285,17 @@
         function renderMap() {
             const container = document.getElementById('map-container');
             const imgIdx = (gameState.mapLevel - 1) % mapImages.length;
-            
-            // Bildpfad setzen
-            const imgUrl = mapImages[imgIdx];
-            container.style.backgroundImage = `url('${imgUrl}')`;
+            container.style.backgroundImage = `url('${mapImages[imgIdx]}')`;
 
             container.innerHTML = gameState.stations.map(s => `
                 <div class="station ${s.status}" data-station-id="${s.id}" style="top: ${s.top}; left: ${s.left};">
                     <div class="relative" onclick="handleStationClick(${s.id}, 'station')">
-                        <div class="text-3xl filter drop-shadow-sm">
+                        <div class="text-3xl drop-shadow-md">
                             ${s.status === 'opened' || s.status === 'unlocked' ? s.emoji : '🔒'}
                         </div>
                         ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
                     </div>
-                    <span class="text-[10px] font-bold bg-white/90 px-2 py-0.5 rounded-lg shadow-sm whitespace-nowrap mt-1 border border-slate-100">${s.name}</span>
+                    <span class="text-[9px] font-bold bg-white/90 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap mt-1 border border-slate-200">${s.name}</span>
                 </div>
             `).join('');
         }
@@ -302,9 +303,9 @@
         window.handleStationClick = function(id, targetType) {
             const s = gameState.stations.find(st => st.id === id);
             if (targetType === 'station' && s.status === 'locked') {
-                if (confirm(`${s.name} für 20 Sterne freischalten?`)) unlockStation(id);
+                if (confirm(`${s.name} entdecken? (20 Sterne)`)) unlockStation(id);
             } else if (targetType === 'chest' && s.status === 'unlocked') {
-                if (confirm(`Truhe in ${s.name} für 10 Sterne öffnen?`)) openChest(id);
+                if (confirm(`Truhe öffnen? (10 Sterne)`)) openChest(id);
             }
         };
 
@@ -314,7 +315,7 @@
                 gameState.stations.find(st => st.id === id).status = 'unlocked';
                 saveAndRefresh();
             } else {
-                alert("Du brauchst mehr Sterne!");
+                alert("Nicht genug Sterne!");
             }
         }
 
@@ -342,7 +343,7 @@
                 setTimeout(() => {
                     const gem = document.createElement('div');
                     gem.className = 'flying-gem';
-                    gem.innerText = gemEmojis[i % gemEmojis.length];
+                    gem.innerText = gemEmojis[Math.floor(Math.random() * gemEmojis.length)];
                     gem.style.left = startRect.left + 'px';
                     gem.style.top = startRect.top + 'px';
                     document.body.appendChild(gem);
@@ -366,8 +367,8 @@
                 gameState.inventory.forEach(item => { counts[item] = (counts[item] || 0) + 1; });
                 invList.innerHTML = Object.keys(counts).map(key => `
                     <div class="item-slot">
-                        <span class="text-xl">${key}</span> 
-                        ${counts[key] > 1 ? `<span class="text-xs font-bold text-green-600">x${counts[key]}</span>` : ''}
+                        <span class="text-lg">${key}</span> 
+                        ${counts[key] > 1 ? `<span class="text-xs font-bold text-emerald-600">x${counts[key]}</span>` : ''}
                     </div>
                 `).join('');
             } else {
