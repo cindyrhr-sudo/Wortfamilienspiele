@@ -185,96 +185,55 @@
 
             <!-- Missionen -->
             <div class="glass-card p-5">
-                <h3 class="font-bold text-slate-500 mb-4 text-[11px] uppercase tracking-widest">Wähle eine Mission</h3>
+                <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest">Wähle eine Mission</h3>
                 <div class="space-y-3">
                     <button class="w-full game-card-modern bg-emerald-100 border-emerald-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel1.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🌳</div>
+                        <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🌳</div>
                         <div>
-                            <div class="font-bold text-emerald-900 text-sm leading-tight">Wortstamm-Baum</div>
-                            <div class="text-[11px] text-emerald-700">Level 1 • Einfach</div>
+                            <div class="font-bold text-emerald-900 text-base leading-tight">Wortstamm-Baum</div>
+                            <div class="text-[12px] text-emerald-700">Level 1 • Einfach</div>
                         </div>
                     </button>
                     
                     <button class="w-full game-card-modern bg-orange-100 border-orange-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel2.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
+                        <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
                         <div>
-                            <div class="font-bold text-orange-900 text-sm leading-tight">Wort-Labor</div>
-                            <div class="text-[11px] text-orange-700">Level 2 • Normal</div>
+                            <div class="font-bold text-orange-900 text-base leading-tight">Wort-Labor</div>
+                            <div class="text-[12px] text-orange-700">Level 2 • Normal</div>
                         </div>
                     </button>
 
                     <button class="w-full game-card-modern bg-pink-100 border-pink-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel3.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
+                        <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
                         <div>
-                            <div class="font-bold text-pink-900 text-sm leading-tight">Eindringlinge</div>
-                            <div class="text-[11px] text-pink-700">Level 3 • Wortfamilien</div>
+                            <div class="font-bold text-pink-900 text-base leading-tight">Eindringlinge</div>
+                            <div class="text-[12px] text-pink-700">Level 3 • Wortfamilien</div>
                         </div>
                     </button>
 
                     <button class="w-full game-card-modern bg-sky-100 border-sky-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel4.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">📖</div>
+                        <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">📖</div>
                         <div>
-                            <div class="font-bold text-sky-900 text-sm leading-tight">Lese-Profi</div>
-                            <div class="text-[11px] text-sky-700">Level 4 • Mittel</div>
+                            <div class="font-bold text-sky-900 text-base leading-tight">Lese-Profi</div>
+                            <div class="text-[12px] text-sky-700">Level 4 • Mittel</div>
                         </div>
                     </button>
 
                     <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">✨</div>
+                        <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">✨</div>
                         <div>
-                            <div class="font-bold text-amber-900 text-sm italic leading-tight">Bonus-Arena</div>
-                            <div class="text-[11px] text-amber-700">Sterne sammeln!</div>
+                            <div class="font-bold text-amber-900 text-base italic leading-tight">Bonus-Arena</div>
+                            <div class="text-[12px] text-amber-700">Sterne sammeln!</div>
                         </div>
                     </button>
                 </div>
             </div>
         </section>
 
+        <!-- Das Spiel-Fenster (Overlay) - Jetzt korrigiert und nur einmal vorhanden -->
         <section id="game-view" class="hidden fixed inset-0 bg-slate-900/95 z-[200] flex flex-col p-4 backdrop-blur-md">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95">⬅ ZURÜCK</button>
-                <div class="font-bold text-white opacity-50 uppercase text-[11px] tracking-widest">Abenteuer aktiv...</div>
-            </div>
-                    </button>
-                    
-                    <button class="w-full game-card-modern bg-orange-100 border-orange-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel2.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
-                        <div>
-                            <div class="font-bold text-orange-900 text-sm leading-tight">Wort-Labor</div>
-                            <div class="text-[10px] text-orange-700">Level 2 • Normal</div>
-                        </div>
-                    </button>
-
-                    <button class="w-full game-card-modern bg-pink-100 border-pink-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel3.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
-                        <div>
-                            <div class="font-bold text-pink-900 text-sm leading-tight">Eindringlinge</div>
-                            <div class="text-[10px] text-pink-700">Level 3 • Wortfamilien</div>
-                        </div>
-                    </button>
-
-                    <button class="w-full game-card-modern bg-sky-100 border-sky-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel4.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">📖</div>
-                        <div>
-                            <div class="font-bold text-sky-900 text-sm leading-tight">Lese-Profi</div>
-                            <div class="text-[10px] text-sky-700">Level 4 • Mittel</div>
-                        </div>
-                    </button>
-
-                    <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
-                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">✨</div>
-                        <div>
-                            <div class="font-bold text-amber-900 text-sm italic leading-tight">Bonus-Arena</div>
-                            <div class="text-[10px] text-amber-700">Sterne sammeln!</div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section id="game-view" class="hidden fixed inset-0 bg-slate-900/95 z-[200] flex flex-col p-4 backdrop-blur-md">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95">⬅ ZURÜCK</button>
+                <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 text-lg">⬅ ZURÜCK</button>
                 <div class="font-bold text-white opacity-50 uppercase text-xs tracking-widest">Abenteuer aktiv...</div>
             </div>
             <iframe id="game-frame" class="flex-1 w-full rounded-2xl border-none bg-white shadow-2xl"></iframe>
@@ -301,16 +260,16 @@
             points: 50,
             mapLevel: 1,
             stations: [
-                { id: 1, name: "Schiff", status: "locked", emoji: "🚢", top: "92.5%", left: "24.7%" },
-                { id: 2, name: "Strand", status: "locked", emoji: "🐚", top: "85.5%", left: "63.4%" },
-                { id: 3, name: "Vulkan", status: "locked", emoji: "🌋", top: "70%", left: "85%" },
-                { id: 4, name: "Stein", status: "locked", emoji: "🪨", top: "65%", left: "51%" },
-                { id: 5, name: "Berg", status: "locked", emoji: "🏔️", top: "24%", left: "88%" },
-                { id: 6, name: "Höhle", status: "locked", emoji: "🗻", top: "42.5%", left: "41%" },
-                { id: 7, name: "See", status: "locked", emoji: "🏞️", top: "39%", left: "70%" },
-                { id: 8, name: "Wald", status: "locked", emoji: "🌳", top: "25%", left: "87%" },
-                { id: 9, name: "Hütte", status: "locked", emoji: "🛖", top: "16.5%", left: "63%" },
-                { id: 10, name: "Schatz", status: "locked", emoji: "🪙", top: "13.5%", left: "36%" }
+                { id: 1, name: "Schiff", status: "locked", emoji: "🚢", top: "92%", left: "24.7%" },
+                { id: 2, name: "Strand", status: "locked", emoji: "🐚", top: "85%", left: "63.4%" },
+                { id: 3, name: "Vulkan", status: "locked", emoji: "🌋", top: "69%", left: "85%" },
+                { id: 4, name: "Stein", status: "locked", emoji: "🪨", top: "63%", left: "51%" },
+                { id: 5, name: "Berg", status: "locked", emoji: "🏔️", top: "22%", left: "88%" },
+                { id: 6, name: "Höhle", status: "locked", emoji: "🗻", top: "42%", left: "41%" },
+                { id: 7, name: "See", status: "locked", emoji: "🏞️", top: "37%", left: "70%" },
+                { id: 8, name: "Wald", status: "locked", emoji: "🌳", top: "22%", left: "88%" },
+                { id: 9, name: "Hütte", status: "locked", emoji: "🛖", top: "16%", left: "64%" },
+                { id: 10, name: "Schatz", status: "locked", emoji: "🪙", top: "14%", left: "34.5%" }
             ],
             inventory: []
         };
