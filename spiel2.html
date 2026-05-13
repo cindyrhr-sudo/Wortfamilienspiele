@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wort-Labor</title>
     <style>
         :root {
@@ -18,11 +18,19 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg-color);
             margin: 0;
-            display: flex; flex-direction: column; align-items: center;
-            height: 100vh; overflow: hidden; color: #334155; touch-action: none;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            height: 100vh; 
+            overflow: hidden; 
+            color: #334155; 
+            /* Verhindert Standard-Gesten wie 'Pull-to-refresh' */
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
-        /* Startbildschirm */
+        /* Startbildschirm Optimierung */
         #start-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
@@ -35,6 +43,7 @@
             border-radius: 24px; font-size: 1.5rem; font-weight: 800; color: #1e293b;
             cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transition: all 0.2s;
             border: 2px solid transparent;
+            -webkit-tap-highlight-color: transparent;
         }
         .mode-btn:hover { transform: translateY(-5px); border-color: var(--accent-green); }
         .mode-btn span { display: block; font-size: 0.95rem; font-weight: 500; margin-top: 5px; color: #64748b; }
@@ -51,17 +60,24 @@
         }
 
         #word-display {
-            font-size: clamp(3rem, 12vw, 6rem); font-weight: 900; display: flex;
-            padding: 20px 40px; background: white; border-radius: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06); border: 8px solid #cbd5e1;
+            font-size: clamp(2.5rem, 10vw, 5rem); font-weight: 900; display: flex;
+            padding: 20px 25px; background: white; border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06); border: 6px solid #cbd5e1;
             cursor: crosshair; max-width: 95vw;
+            /* Wichtig für Touch: Keine Verzögerung beim Tippen */
+            touch-action: none;
         }
 
         .char-unit { 
-            position: relative; padding: 0 2px; z-index: 5; 
-            display: inline-block; border-radius: 12px; border: 5px solid transparent; 
+            position: relative; 
+            padding: 0 4px; /* Etwas breiter für Touch-Präzision */
+            z-index: 5; 
+            display: inline-block; 
+            border-radius: 12px; 
+            border: 4px solid transparent; 
+            transition: background-color 0.2s;
         }
-        .char-unit.hidden-part { display: none; } /* Neu: Zum Ausblenden der Teile */
+        .char-unit.hidden-part { display: none; }
         .char-unit.error { border-color: #ef4444 !important; background: #fee2e2; }
 
         .marker {
@@ -73,63 +89,69 @@
         .mark-suffix { background: var(--suffix-color); opacity: var(--marker-opacity); }
 
         .tool-bar {
-            display: flex; gap: 15px; padding: 15px 30px;
+            display: flex; gap: 10px; padding: 10px 20px;
             background: white; border-radius: 60px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
         }
 
         .marker-pen {
-            width: 70px; height: 100px; cursor: pointer;
+            width: 65px; height: 90px; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .marker-pen.active { transform: translateY(-15px) scale(1.1); }
+        .marker-pen.active { transform: translateY(-12px) scale(1.1); }
         .pen-body {
-            width: 45px; height: 70px; border-radius: 10px;
+            width: 40px; height: 65px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 0.75rem; font-weight: 800;
+            color: white; font-size: 0.7rem; font-weight: 800;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
-        .pen-tip { width: 22px; height: 15px; background: #334155; border-radius: 4px 4px 0 0; }
+        .pen-tip { width: 20px; height: 12px; background: #334155; border-radius: 4px 4px 0 0; }
         .pen-prefix .pen-body { background: var(--prefix-color); }
         .pen-stem .pen-body { background: var(--stem-color); color: #854d0e; }
         .pen-suffix .pen-body { background: var(--suffix-color); }
-        .pen-eraser .pen-body { background: #94a3b8; font-size: 1.5rem; }
+        .pen-eraser .pen-body { background: #94a3b8; font-size: 1.4rem; }
 
         #variation-box {
-            display: none; width: 100%; padding: 20px; background: #f0fdf4;
-            border-radius: 25px; border: 3px dashed var(--accent-green); text-align: center;
+            display: none; width: 100%; padding: 15px; background: #f0fdf4;
+            border-radius: 20px; border: 3px dashed var(--accent-green); text-align: center;
             box-sizing: border-box;
         }
 
-        .variation-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .variation-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 
         .variation-btn {
-            background: white; border: 3px solid #cbd5e1; padding: 15px 30px;
-            border-radius: 20px; cursor: pointer; font-weight: 800; font-size: 1.8rem;
-            transition: 0.2s; min-width: 100px;
+            background: white; border: 3px solid #cbd5e1; padding: 12px 24px;
+            border-radius: 18px; cursor: pointer; font-weight: 800; font-size: 1.5rem;
+            transition: 0.2s; min-width: 90px;
+            -webkit-tap-highlight-color: transparent;
         }
         .variation-btn.selected { border-color: var(--accent-green); background: #dcfce7; }
         .variation-btn.error { border-color: #ef4444; background: #fee2e2; }
 
         #check-btn {
-            background: var(--accent-green); color: white; border: none; padding: 18px 60px;
-            font-size: 1.6rem; border-radius: 40px; cursor: pointer; font-weight: 800;
-            box-shadow: 0 6px 0 #2e7d32; margin-bottom: 5px;
+            background: var(--accent-green); color: white; border: none; padding: 16px 50px;
+            font-size: 1.5rem; border-radius: 40px; cursor: pointer; font-weight: 800;
+            box-shadow: 0 5px 0 #2e7d32; margin-bottom: 10px;
+            -webkit-tap-highlight-color: transparent;
         }
+        #check-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #2e7d32; }
 
         #win-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; display: none; z-index: 3000;
             flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; text-align: center;
         }
 
         .hidden { display: none !important; }
     </style>
 </head>
-<body onmouseup="stopPainting()" onmouseleave="stopPainting()">
+<body onmouseup="stopPainting()" onmouseleave="stopPainting()" ontouchend="stopPainting()">
 
     <div id="start-screen">
-        <h1 style="font-size: 3.5rem; color: #0f172a; margin: 0;">Wort-Labor 🧪</h1>
-        <p style="font-size: 1.2rem; color: #475569; margin-bottom: 30px;">Finde die Bausteine der Wörter!</p>
+        <h1 style="font-size: 2.8rem; color: #0f172a; margin: 0;">Wort-Labor 🧪</h1>
+        <p style="font-size: 1.1rem; color: #475569; margin-bottom: 25px;">Finde die Bausteine der Wörter!</p>
         <button class="mode-btn" onclick="startGame(1)">🚀 STUFE 1<span>Nur Wortstamm finden (1 ⭐)</span></button>
         <button class="mode-btn" onclick="startGame(2)">🧪 STUFE 2<span>Alle Teile markieren (2 ⭐)</span></button>
         <button class="mode-btn" onclick="startGame(3)">🧠 STUFE 3<span>Profi-Analyse (3 ⭐)</span></button>
@@ -137,12 +159,12 @@
 
     <div class="lab-container">
         <div id="progress-bar">Wort 1 / 5</div>
-        <div id="feedback-message" style="color: #e11d48; font-weight: 800; min-height: 1.5em;"></div>
+        <div id="feedback-message" style="color: #e11d48; font-weight: 800; min-height: 1.5em; font-size: 1.1rem;"></div>
         
         <div id="word-display"></div>
 
         <div id="variation-box">
-            <p style="font-weight: 800; color: #166534; font-size: 1.4rem;">Welche Bausteine passen noch zum Stamm?</p>
+            <p style="font-weight: 800; color: #166534; font-size: 1.2rem; margin-top: 0;">Welche Bausteine passen noch zum Stamm?</p>
             <div id="variation-list" class="variation-list"></div>
         </div>
 
@@ -165,10 +187,10 @@
     </div>
 
     <div id="win-screen">
-        <h1 style="font-size: 3rem; color: #166534;">Laborbericht</h1>
-        <div id="stars-result" style="font-size: 5rem; color: #eab308; margin-bottom: 20px;"></div>
-        <p id="points-display" style="font-size: 1.8rem; font-weight: 800; color: #475569;"></p>
-        <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Ergebnisse speichern</button>
+        <h1 style="font-size: 2.5rem; color: #166534;">Laborbericht</h1>
+        <div id="stars-result" style="font-size: 4rem; color: #eab308; margin-bottom: 15px;"></div>
+        <p id="points-display" style="font-size: 1.5rem; font-weight: 800; color: #475569;"></p>
+        <button class="mode-btn" style="background: var(--accent-green); color: white; max-width: 300px;" onclick="resetToMenu()">Ergebnisse speichern</button>
     </div>
 
     <script>
@@ -219,25 +241,41 @@
                 span.className = 'char-unit';
                 span.innerText = char;
                 span.id = `char-${index}`;
+                // Marker-Hintergrund
                 const marker = document.createElement('div');
                 marker.className = 'marker';
                 marker.id = `marker-${index}`;
                 span.appendChild(marker);
 
+                // Maus-Events
                 span.onmousedown = (e) => { startPainting(); paintChar(index); e.preventDefault(); };
                 span.onmouseenter = () => { if(isPainting) paintChar(index); };
-                span.ontouchstart = (e) => { startPainting(); paintChar(index); e.preventDefault(); };
+                
+                // Touch-Events
+                span.ontouchstart = (e) => { 
+                    startPainting(); 
+                    paintChar(index); 
+                    // preventDefault verhindert das Scrollen während des Malens
+                    if (e.cancelable) e.preventDefault(); 
+                };
+                
                 display.appendChild(span);
             });
 
             display.addEventListener('touchmove', (e) => {
                 if(!isPainting) return;
                 const touch = e.touches[0];
+                // Finde das Element unter dem Finger-Kontaktpunkt
                 const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                if(el && el.id && el.id.startsWith('char-')) {
-                    paintChar(parseInt(el.id.split('-')[1]));
+                if(el) {
+                    // Falls das Element ein Kind (Marker) ist, nimm das Elternteil (Span)
+                    const target = el.id.startsWith('char-') ? el : el.parentElement;
+                    if(target && target.id && target.id.startsWith('char-')) {
+                        const idx = parseInt(target.id.split('-')[1]);
+                        if (!isNaN(idx)) paintChar(idx);
+                    }
                 }
-                e.preventDefault();
+                if (e.cancelable) e.preventDefault();
             }, {passive: false});
         }
 
@@ -254,6 +292,8 @@
         function paintChar(index) {
             const marker = document.getElementById(`marker-${index}`);
             const charUnit = document.getElementById(`char-${index}`);
+            if (!marker || !charUnit) return;
+
             marker.className = 'marker mark-' + activePen;
             charMarks[index] = activePen === 'none' ? null : activePen;
             charUnit.classList.remove('error');
@@ -269,6 +309,7 @@
             const isPhaseTwo = document.getElementById('variation-box').style.display !== 'none';
 
             if (!isPhaseTwo) {
+                // Überprüfung der Markierungen
                 charMarks.forEach((mark, i) => {
                     let expected = null;
                     if (i < preLen) expected = (currentLevel >= 2) ? 'prefix' : null;
@@ -288,11 +329,13 @@
                     return;
                 }
 
+                // Wenn Stufe 3, dann zur Variations-Phase wechseln
                 if (currentLevel === 3) {
                     showVariations();
                     return;
                 }
             } else {
+                // Überprüfung der zusätzlichen Bausteine (Stufe 3)
                 let altErrors = 0;
                 data.alternates.forEach((alt, idx) => {
                     const btn = document.querySelectorAll('.variation-btn')[idx];
@@ -310,6 +353,7 @@
                 }
             }
 
+            // Erfolg: Sterne vergeben und nächstes Wort
             if (!currentWordFailed) totalStars += currentLevel;
 
             roundStep++;
@@ -322,23 +366,22 @@
             const list = document.getElementById('variation-list');
             const toolbar = document.getElementById('tool-bar');
             
-            // Phase 2 Setup
             box.style.display = 'block';
-            toolbar.style.display = 'none'; // Stifte verstecken
+            toolbar.style.display = 'none';
             list.innerHTML = '';
             
-            // DIE NEUE LOGIK: Prefix und Suffix ausblenden
+            // Wortstamm isolieren (Präfix und Suffix ausblenden)
             const preLen = currentWordData.prefix.length;
             const stemLen = currentWordData.stem.length;
             
             currentWordData.word.split('').forEach((_, index) => {
                 const charUnit = document.getElementById(`char-${index}`);
-                // Wenn Index vor dem Stamm oder nach dem Stamm liegt -> Ausblenden
                 if (index < preLen || index >= (preLen + stemLen)) {
                     charUnit.classList.add('hidden-part');
                 }
             });
 
+            // Variations-Buttons erstellen
             currentWordData.alternates.forEach((alt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'variation-btn';
@@ -346,8 +389,11 @@
                 btn.onclick = () => {
                     btn.classList.remove('error');
                     btn.classList.toggle('selected');
-                    if(variationsSelected.includes(idx)) variationsSelected = variationsSelected.filter(i => i !== idx);
-                    else variationsSelected.push(idx);
+                    if(variationsSelected.includes(idx)) {
+                        variationsSelected = variationsSelected.filter(i => i !== idx);
+                    } else {
+                        variationsSelected.push(idx);
+                    }
                 };
                 list.appendChild(btn);
             });
@@ -358,12 +404,21 @@
             const winScreen = document.getElementById('win-screen');
             winScreen.style.display = 'flex';
             document.getElementById('stars-result').innerText = `⭐ ${totalStars}`;
-            document.getElementById('points-display').innerText = `Fantastisch! Du hast ${totalStars} Sterne verdient!`;
+            
+            let feedback = "Super gemacht!";
+            if (totalStars >= 15) feedback = "Meister-Linguist! Unglaubliche Leistung! 🏆";
+            else if (totalStars >= 10) feedback = "Fantastisch! Du bist ein echter Wort-Experte! 🌟";
+            
+            document.getElementById('points-display').innerText = `${feedback}\nDu hast ${totalStars} Sterne verdient!`;
         }
 
         function resetToMenu() {
+            // Falls in einem IFrame (Lernplattform) eingebettet
             if (window.parent && window.parent.addStars) window.parent.addStars(totalStars);
-            if (window.parent && window.parent.showMenu) window.parent.showMenu();
+            
+            // Zurück zum Start
+            document.getElementById('win-screen').style.display = 'none';
+            document.getElementById('start-screen').classList.remove('hidden');
         }
     </script>
 </body>
