@@ -295,6 +295,10 @@
         let gameMode = 'easy';
         let activeStems = { 1: null, 2: null, 3: null };
 
+              // --- NEUE VARIABLEN FÜR DEN PUNKTE-FREEZE (Ganz oben im Script platzieren) ---
+let scoreCalculated = false;
+let finalRoundScore = 0;
+
         function startGame(mode) {
             gameMode = mode;
             document.getElementById('start-screen').classList.add('hidden');
@@ -372,10 +376,7 @@
             const pool = document.getElementById('pool');
             document.getElementById('check-btn').style.display = (pool.children.length === 0) ? 'block' : 'none';
         }
-       // --- NEUE VARIABLEN FÜR DEN PUNKTE-FREEZE (Ganz oben im Script platzieren) ---
-let scoreCalculated = false;
-let finalRoundScore = 0;
-
+ 
 // --- ERSATZ FÜR DEINE FUNKTIONEN ---
 
 function checkAllTrees() {
