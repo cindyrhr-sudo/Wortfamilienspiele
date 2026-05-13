@@ -264,7 +264,7 @@
 
                 this.activeWords.forEach((w, idx) => {
                     if(!w.isDragging) {
-                        let speed = this.speedMode === 'fast' ? 3.5 : (this.speedMode === 'medium' ? 2.5 : 1.8);
+                        let speed = this.speedMode === 'fast' ? 2 : (this.speedMode === 'medium' ? 1.8 : 1.0);
                         w.y += speed;
                         w.el.style.top = w.y + 'px';
 
