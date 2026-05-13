@@ -144,6 +144,39 @@
 
         .station-icon { 
             font-size: 2rem; 
+            position: relative;
+        }
+
+        /* NEU: Kleines Kisten-Emoji Styling */
+        .mini-chest {
+            position: absolute;
+            top: -5px;
+            right: -15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            z-index: 20;
+        }
+
+        .mini-chest:hover {
+            transform: scale(1.2);
+        }
+
+        /* NEU: Edelstein-Flug-Animation */
+        .flying-gem {
+            position: fixed;
+            z-index: 5000;
+            pointer-events: none;
+            font-size: 1.5rem;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .station-label {
@@ -199,6 +232,27 @@
 
         .game-card:hover { background: #e8f5e9; }
         .hidden { display: none !important; }
+
+        /* NEUER RESET BUTTON STYLING */
+        .reset-container {
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        .reset-btn {
+            background-color: #ffcdd2;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .reset-btn:hover {
+            background-color: #ef9a9a;
+        }
 
         #win-overlay {
             position: fixed;
@@ -299,6 +353,10 @@
                     <div id="inventory-list">
                         <p style="font-size: 0.8rem; color: #888;">Schließe eine Karte ab...</p>
                     </div>
+                    <!-- RESET BUTTON INTEGRATION -->
+                    <div class="reset-container">
+                        <button class="reset-btn" onclick="resetGame()">♻️ Fortschritt zurücksetzen</button>
+                    </div>
                 </div>
 
                 <div class="game-selection">
@@ -342,8 +400,10 @@
     <script>
         const mapImages = ['karte.png', 'karte2.png', 'karte3.png', 'karte4.png', 'karte5.png'];
         const masterTreasures = ["💎", "🏆", "👑", "🦄", "🐉", "🔱", "🧿", "✨", "🔥", "🌈"];
+        const gemEmojis = ["💎", "💎", "✨", "💎"]; // Für den Truhen-Effekt
 
-        let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || {
+        // Start-Konfiguration für einen Reset
+        const initialGameState = {
             points: 50,
             mapLevel: 1,
             stations: [
@@ -361,6 +421,9 @@
             inventory: []
         };
 
+        // Laden des Spielstands oder Initialisierung
+        let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || JSON.parse(JSON.stringify(initialGameState));
+
         /* --- KORRIGIERTE RENDER-FUNKTION --- */
         function renderMap() {
             const container = document.getElementById('map-container');
@@ -374,10 +437,10 @@
                 <div class="map-ratio-box">
                     ${gameState.stations.map(s => `
                         <div class="station ${s.status}" 
-                             style="top: ${s.top}; left: ${s.left};" 
-                             onclick="handleStationClick(${s.id})">
-                            <div class="station-icon">
+                             style="top: ${s.top}; left: ${s.left};">
+                            <div class="station-icon" onclick="handleStationClick(${s.id}, 'station')">
                                 ${s.status === 'opened' || s.status === 'unlocked' ? s.emoji : '🔒'}
+                                ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
                             </div>
                             <span class="station-label">${s.name}</span>
                         </div>
@@ -385,7 +448,6 @@
                 </div>
             `;
         }
-
         window.showMenu = function() {
             document.getElementById('menu-view').classList.remove('hidden');
             document.getElementById('game-view').classList.add('hidden');
@@ -393,20 +455,17 @@
             renderMap();
         };
 
-        function loadGame(url) {
-            document.getElementById('menu-view').classList.add('hidden');
-            document.getElementById('game-view').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('game-frame').src = url;
-            }, 50);
-        }
-
-        function handleStationClick(id) {
+        function handleStationClick(id, targetType) {
             const s = gameState.stations.find(st => st.id === id);
-            if (s.status === 'locked') {
-                if (confirm(`${s.name} für 20 Sterne freischalten?`)) unlockStation(id);
-            } else if (s.status === 'unlocked') {
-                if (confirm(`Truhe in ${s.name} für 10 Sterne öffnen?`)) openChest(id);
+            
+            if (targetType === 'station' && s.status === 'locked') {
+                if (confirm(`${s.name} für 20 Sterne freischalten?`)) {
+                    unlockStation(id);
+                }
+            } else if (targetType === 'chest' && s.status === 'unlocked') {
+                if (confirm(`Truhe in ${s.name} für 10 Sterne öffnen?`)) {
+                    openChest(id);
+                }
             }
         }
 
@@ -415,16 +474,103 @@
                 gameState.points -= 20;
                 gameState.stations.find(st => st.id === id).status = 'unlocked';
                 saveAndRefresh();
-            } else { alert("Nicht genug Sterne!"); }
+            } else { alert("Nicht genug Sterne! Spiele ein Abenteuer, um welche zu verdienen."); }
+        }
+
+        function openChest(id) {
+            if (gameState.points >= 10) {
+                // Wir ziehen die Punkte sofort ab, um Doppel-Klicks zu vermeiden
+                gameState.points -= 10;
+                
+                // Wir finden das Element direkt über eine ID-Suche für die Animation
+                // (Ich habe im Render-Teil unten ein data-id Attribut hinzugefügt)
+                const stationEl = document.querySelector(`[data-station-id="${id}"] .mini-chest`);
+                if(stationEl) {
+                    animateGemsToInventory(stationEl);
+                }
+
+                // Status ändern
+                gameState.stations.find(st => st.id === id).status = 'opened';
+                
+                setTimeout(() => {
+                    saveAndRefresh();
+                    checkMapCompletion();
+                }, 800);
+            } else { alert("Nicht genug Sterne für diese Truhe!"); }
+        }
+
+        function renderMap() {
+            const container = document.getElementById('map-container');
+            if (!container) return;
+
+            const imgIdx = (gameState.mapLevel - 1) % mapImages.length;
+            container.style.backgroundImage = `url('${mapImages[imgIdx]}')`;
+
+            container.innerHTML = `
+                <div class="map-ratio-box">
+                    ${gameState.stations.map(s => `
+                        <div class="station ${s.status}" 
+                             data-station-id="${s.id}"
+                             style="top: ${s.top}; left: ${s.left};">
+                            <div class="station-icon" onclick="handleStationClick(${s.id}, 'station')">
+                                ${s.status === 'opened' || s.status === 'unlocked' ? s.emoji : '🔒'}
+                                ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
+                            </div>
+                            <span class="station-label">${s.name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
         function openChest(id) {
             if (gameState.points >= 10) {
                 gameState.points -= 10;
+                
+                // Animation auslösen, bevor Status geändert wird
+                const stationEl = document.querySelector(`.station:nth-child(${id}) .mini-chest`);
+                if(stationEl) {
+                    animateGemsToInventory(stationEl);
+                }
+
                 gameState.stations.find(st => st.id === id).status = 'opened';
-                saveAndRefresh();
-                checkMapCompletion();
+                
+                // Kurze Verzögerung für die Animation vor dem Refresh
+                setTimeout(() => {
+                    saveAndRefresh();
+                    checkMapCompletion();
+                }, 800);
             } else { alert("Nicht genug Sterne!"); }
+        }
+
+        /* NEU: Edelstein-Animations-Funktion */
+        function animateGemsToInventory(sourceEl) {
+            const startRect = sourceEl.getBoundingClientRect();
+            const invEl = document.querySelector('.inventory h3');
+            const endRect = invEl.getBoundingClientRect();
+
+            // Erzeuge 3 kleine Edelsteine
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const gem = document.createElement('div');
+                    gem.className = 'flying-gem';
+                    gem.innerText = gemEmojis[Math.floor(Math.random() * gemEmojis.length)];
+                    gem.style.left = startRect.left + 'px';
+                    gem.style.top = startRect.top + 'px';
+                    document.body.appendChild(gem);
+
+                    // Animation starten
+                    requestAnimationFrame(() => {
+                        gem.style.left = (endRect.left + 20) + 'px';
+                        gem.style.top = (endRect.top + 20) + 'px';
+                        gem.style.transform = 'scale(0.5) rotate(360deg)';
+                        gem.style.opacity = '0';
+                    });
+
+                    // Nach Animation entfernen
+                    setTimeout(() => gem.remove(), 800);
+                }, i * 150);
+            }
         }
 
         function checkMapCompletion() {
@@ -442,6 +588,16 @@
             document.getElementById('win-overlay').classList.add('hidden');
             saveAndRefresh();
         }
+
+        // RESET FUNKTION
+        window.resetGame = function() {
+            if (confirm("Möchtest du wirklich dein gesamtes Abenteuer zurücksetzen? Alle Sterne, Schätze und freigeschalteten Orte gehen verloren!")) {
+                gameState = JSON.parse(JSON.stringify(initialGameState));
+                localStorage.removeItem('wortAbenteuerState');
+                saveAndRefresh();
+                alert("Das Abenteuer wurde zurückgesetzt. Viel Spaß beim neuen Start!");
+            }
+        };
 
         function saveAndRefresh() {
             localStorage.setItem('wortAbenteuerState', JSON.stringify(gameState));
