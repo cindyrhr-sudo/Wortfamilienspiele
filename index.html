@@ -15,6 +15,10 @@
             --card-bg: rgba(255, 255, 255, 0.95);
         }
 
+        html {
+            font-size: 110%; /* Erhöht die Basis für alle rem-basierten Größen um 10% */
+        }
+
         body {
             font-family: 'Fredoka', sans-serif;
             background-color: var(--bg-body);
@@ -90,7 +94,7 @@
             position: absolute;
             top: -12px;
             right: -12px;
-            font-size: 1.4rem;
+            font-size: 1.54rem; /* Erhöht von 1.4rem */
             background: #fcd34d;
             border: 2px solid white;
             border-radius: 50%;
@@ -134,7 +138,7 @@
             position: fixed;
             z-index: 5000;
             pointer-events: none;
-            font-size: 2rem;
+            font-size: 2.2rem; /* Erhöht von 2rem */
             transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
     </style>
@@ -172,7 +176,7 @@
             <div class="glass-card p-5 border-l-8 border-emerald-500">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2">🎒 Dein Rucksack</h3>
-                    <button onclick="resetGame()" class="text-[10px] uppercase font-bold text-slate-400 hover:text-red-500">Reset ♻️</button>
+                    <button onclick="resetGame()" class="text-[11px] uppercase font-bold text-slate-400 hover:text-red-500">Reset ♻️</button>
                 </div>
                 <div id="inventory-list" class="flex flex-wrap gap-2 min-h-[50px]">
                     <p class="text-slate-400 text-xs italic">Noch leer...</p>
@@ -181,14 +185,56 @@
 
             <!-- Missionen -->
             <div class="glass-card p-5">
-                <h3 class="font-bold text-slate-500 mb-4 text-[10px] uppercase tracking-widest">Wähle eine Mission</h3>
+                <h3 class="font-bold text-slate-500 mb-4 text-[11px] uppercase tracking-widest">Wähle eine Mission</h3>
                 <div class="space-y-3">
                     <button class="w-full game-card-modern bg-emerald-100 border-emerald-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel1.html')">
                         <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🌳</div>
                         <div>
                             <div class="font-bold text-emerald-900 text-sm leading-tight">Wortstamm-Baum</div>
-                            <div class="text-[10px] text-emerald-700">Level 1 • Einfach</div>
+                            <div class="text-[11px] text-emerald-700">Level 1 • Einfach</div>
                         </div>
+                    </button>
+                    
+                    <button class="w-full game-card-modern bg-orange-100 border-orange-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel2.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
+                        <div>
+                            <div class="font-bold text-orange-900 text-sm leading-tight">Wort-Labor</div>
+                            <div class="text-[11px] text-orange-700">Level 2 • Normal</div>
+                        </div>
+                    </button>
+
+                    <button class="w-full game-card-modern bg-pink-100 border-pink-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel3.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
+                        <div>
+                            <div class="font-bold text-pink-900 text-sm leading-tight">Eindringlinge</div>
+                            <div class="text-[11px] text-pink-700">Level 3 • Wortfamilien</div>
+                        </div>
+                    </button>
+
+                    <button class="w-full game-card-modern bg-sky-100 border-sky-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel4.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">📖</div>
+                        <div>
+                            <div class="font-bold text-sky-900 text-sm leading-tight">Lese-Profi</div>
+                            <div class="text-[11px] text-sky-700">Level 4 • Mittel</div>
+                        </div>
+                    </button>
+
+                    <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
+                        <div class="text-xl bg-white p-2 rounded-lg shadow-sm">✨</div>
+                        <div>
+                            <div class="font-bold text-amber-900 text-sm italic leading-tight">Bonus-Arena</div>
+                            <div class="text-[11px] text-amber-700">Sterne sammeln!</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="game-view" class="hidden fixed inset-0 bg-slate-900/95 z-[200] flex flex-col p-4 backdrop-blur-md">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95">⬅ ZURÜCK</button>
+                <div class="font-bold text-white opacity-50 uppercase text-[11px] tracking-widest">Abenteuer aktiv...</div>
+            </div>
                     </button>
                     
                     <button class="w-full game-card-modern bg-orange-100 border-orange-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel2.html')">
@@ -295,7 +341,7 @@
                         </div>
                         ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
                     </div>
-                    <span class="text-[9px] font-bold bg-white/90 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap mt-1 border border-slate-200">${s.name}</span>
+                    <span class="text-[10px] font-bold bg-white/90 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap mt-1 border border-slate-200">${s.name}</span>
                 </div>
             `).join('');
         }
