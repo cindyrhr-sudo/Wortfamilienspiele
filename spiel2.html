@@ -155,9 +155,9 @@
     <div id="start-screen">
         <h1 style="font-size: 3.5rem; color: #0f172a; margin: 0;">Wort-Labor 🧪</h1>
         <p style="font-size: 1.2rem; color: #475569; margin-bottom: 30px;">Finde die Bausteine der Wörter!</p>
-        <button class="mode-btn" onclick="startGame(1)">🚀 STUFE 1<span>Nur Wortstamm finden</span></button>
-        <button class="mode-btn" onclick="startGame(2)">🧪 STUFE 2<span>Alle Teile markieren</span></button>
-        <button class="mode-btn" onclick="startGame(3)">🧠 STUFE 3<span>Profi-Analyse</span></button>
+        <button class="mode-btn" onclick="startGame(1)">🚀 STUFE 1<span>Nur Wortstamm finden (1 ⭐/Wort)</span></button>
+        <button class="mode-btn" onclick="startGame(2)">🧪 STUFE 2<span>Alle Teile markieren (2 ⭐/Wort)</span></button>
+        <button class="mode-btn" onclick="startGame(3)">🧠 STUFE 3<span>Profi-Analyse (3 ⭐/Wort)</span></button>
     </div>
 
     <div class="lab-container">
@@ -193,7 +193,7 @@
         <h1 style="font-size: 3rem; color: #166534;">Ergebnis</h1>
         <div id="stars-result" style="font-size: 5rem; color: #eab308; margin-bottom: 20px;"></div>
         <p id="points-display" style="font-size: 1.8rem; font-weight: 800; color: #475569;"></p>
-        <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Weiter zur Karte</button>
+        <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Belohnung abholen</button>
     </div>
 
     <script>
@@ -214,11 +214,15 @@
         let charMarks = [];
         let variationsSelected = [];
         let sessionWords = [];
-        let currentWordFailed = false;
+        
+        // PUNKTE-LOGIK Variablen
+        let currentWordFailed = false; // Hat der Spieler in diesem Wort schon einen Fehler gemacht?
+        let checkCountForWord = 0;     // Wie oft wurde "Prüfen" für das aktuelle Wort gedrückt?
 
         function startGame(level) {
             currentLevel = parseInt(level);
-            roundStep = 0; totalStars = 0;
+            roundStep = 0; 
+            totalStars = 0;
             sessionWords = [...wordPool].sort(() => 0.5 - Math.random()).slice(0, 5);
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('pen-prefix').classList.toggle('hidden', currentLevel === 1);
@@ -229,6 +233,8 @@
         function loadWord() {
             currentWordData = sessionWords[roundStep];
             currentWordFailed = false;
+            checkCountForWord = 0; // Reset für neues Wort
+            
             document.getElementById('progress-bar').innerText = `Wort ${roundStep + 1} / 5`;
             document.getElementById('feedback-message').innerText = "";
             const display = document.getElementById('word-display');
@@ -290,6 +296,7 @@
             const msg = document.getElementById('feedback-message');
             let errors = 0;
 
+            // Markierungen validieren
             charMarks.forEach((mark, i) => {
                 let expected = null;
                 if (i < preLen) expected = (currentLevel >= 2) ? 'prefix' : null;
@@ -305,8 +312,10 @@
                 }
             });
 
+            // Varianten validieren (nur Level 3 Phase 2)
             let altErrors = 0;
-            if (currentLevel === 3 && document.getElementById('variation-box').style.display !== 'none') {
+            const isPhaseTwo = document.getElementById('variation-box').style.display !== 'none';
+            if (currentLevel === 3 && isPhaseTwo) {
                 data.alternates.forEach((alt, idx) => {
                     const btn = document.querySelectorAll('.variation-btn')[idx];
                     const isSelected = variationsSelected.includes(idx);
@@ -319,18 +328,26 @@
                 });
             }
 
+            // --- PUNKTE-FREEZE LOGIK ---
+            // Wenn Fehler gemacht wurden, wird das Wort als "Failed" markiert (keine Sterne möglich)
             if (errors > 0 || altErrors > 0) {
                 msg.innerText = "Da stimmt was noch nicht! 🧐";
                 currentWordFailed = true;
                 return;
             }
 
-            if (currentLevel === 3 && document.getElementById('variation-box').style.display === 'none') {
+            // Wenn Level 3 und wir sind erst nach Phase 1 (Markieren)
+            if (currentLevel === 3 && !isPhaseTwo) {
                 showVariations();
                 return;
             }
 
-            if (!currentWordFailed) totalStars += 1;
+            // Wenn alles korrekt ist und wir das Ende des Wortes erreicht haben:
+            // Wir vergeben Sterne nur, wenn currentWordFailed noch false ist
+            if (!currentWordFailed) {
+                totalStars += currentLevel; // 1, 2 oder 3 Sterne je nach Level
+            }
+
             roundStep++;
             if(roundStep < 5) loadWord();
             else showFinalResults();
@@ -357,26 +374,26 @@
         }
 
         function showFinalResults() {
-            document.getElementById('win-screen').style.display = 'flex';
-            document.getElementById('stars-result').innerText = "⭐".repeat(totalStars) + "☆".repeat(5-totalStars);
-            document.getElementById('points-display').innerText = `${totalStars} von 5 Aufgaben perfekt gelöst!`;
+            const winScreen = document.getElementById('win-screen');
+            winScreen.style.display = 'flex';
+            
+            const maxPossible = 5 * currentLevel;
+            document.getElementById('stars-result').innerText = `⭐ ${totalStars} / ${maxPossible}`;
+            document.getElementById('points-display').innerText = `Du hast ${totalStars} Sterne für deine Karte gesammelt!`;
         }
 
         function resetToMenu() {
-    // 1. Punkte an das Kontrollzentrum senden
-    if (window.parent && window.parent.addStars) {
-        // Wir rechnen hier: Sterne (0-5) mal 10 = Punkte
-        window.parent.addStars(totalStars * 10); 
-    }
+            if (window.parent && window.parent.addStars) {
+                // Wir übergeben die totalStars direkt an das Hauptsystem
+                window.parent.addStars(totalStars); 
+            }
 
-    // 2. Kurz warten (100ms), dann das Menü wieder anzeigen
-    // Das stellt sicher, dass die Punkteverarbeitung abgeschlossen ist
-    setTimeout(() => {
-        if (window.parent && window.parent.showMenu) {
-            window.parent.showMenu();
+            setTimeout(() => {
+                if (window.parent && window.parent.showMenu) {
+                    window.parent.showMenu();
+                }
+            }, 100);
         }
-    }, 100);
-}
     </script>
 </body>
 </html>
