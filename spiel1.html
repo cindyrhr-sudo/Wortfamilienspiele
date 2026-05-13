@@ -2,290 +2,227 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wortstamm-Baum</title>
     <style>
         :root {
             --primary-green: #4caf50;
             --dark-green: #2e7d32;
-            --light-green: #c8e6c9;
-            --trunk-brown: #795548;
-            --dead-leaf: #8d6e63;
-            --accent-gold: #ffdf00;
+            --light-green: #e8f5e9;
+            --trunk-brown: #5d4037;
+            --accent-gold: #ffc107;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
             margin: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
             height: 100vh;
-            overflow: hidden;
             color: #333;
+            touch-action: none;
+            overflow: hidden;
         }
 
-        /* Wasserzeichen Baum im Hintergrund */
-        body::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 85 V70 M50 70 Q40 60 30 70 M50 70 Q60 60 70 70 M50 60 Q35 40 50 20 Q65 40 50 60" stroke="%234caf50" stroke-width="2" fill="none" opacity="0.1"/></svg>');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: 80% auto;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        h2 { color: var(--dark-green); margin-top: 15px; text-shadow: 1px 1px 0px white; }
-
-        /* Startbildschirm Design */
+        /* */
         #start-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #f1f8e9 0%, #a5d6a7 100%);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.05);
-        }
-
-        #start-screen h1 {
-            font-size: 3.5rem;
-            color: var(--dark-green);
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
         }
 
         .mode-btn {
+            background: white; border: 2px solid var(--primary-green); padding: 16px 24px; 
+            margin: 10px; width: 85%; max-width: 350px;
+            border-radius: 16px; font-size: 1.1rem; font-weight: 800; color: var(--dark-green);
+            cursor: pointer; box-shadow: 0 4px 0 var(--primary-green); transition: all 0.1s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mode-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-green); }
+        .mode-btn span { display: block; font-size: 0.8rem; font-weight: normal; opacity: 0.8; }
+
+        header { padding: 10px; text-align: center; }
+        h1 { color: var(--dark-green); margin: 5px 0; font-size: 1.4rem; }
+
+        .leaf-pool-container {
             background: white;
-            border: none;
-            padding: 18px;
-            margin: 12px;
-            width: 280px;
-            border-radius: 20px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--dark-green);
-            cursor: pointer;
-            box-shadow: 0 6px 0 var(--primary-green), 0 8px 15px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 0 var(--primary-green), 0 10px 20px rgba(0,0,0,0.15);
-            background: #fafafa;
-        }
-
-        .mode-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 var(--primary-green);
-        }
-
-        .mode-btn span {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: normal;
-            margin-top: 6px;
-            color: #666;
-        }
-
-        /* Spiel-Elemente */
-        .game-container {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 1000px;
-            flex: 1;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        .tree {
-            width: 280px;
-            height: 400px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .tree-crown {
-            width: 240px;
-            height: 240px;
-            background: radial-gradient(circle at 30% 30%, #66bb6a, #43a047);
-            border-radius: 50%;
-            position: absolute;
-            top: 10px;
-            z-index: 1;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15), inset -15px -15px 0 rgba(0,0,0,0.05);
-            display: flex;
-            flex-wrap: wrap;
-            padding: 30px;
-            justify-content: center;
-            align-content: center;
-            gap: 8px;
-            border: 4px solid rgba(255,255,255,0.2);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .tree.drag-over .tree-crown {
-            transform: scale(1.05);
-            background: radial-gradient(circle at 30% 30%, #81c784, #4caf50);
-        }
-
-        .tree-trunk {
-            width: 70px;
-            height: 140px;
-            background: linear-gradient(to right, #5d4037, #795548, #5d4037);
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px 10px 0 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .trunk-label {
-            color: white;
-            font-weight: 900;
-            font-size: 1.4rem;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 2px rgba(0,0,0,0.5);
-            letter-spacing: 1px;
-        }
-
-        /* Blätter Design */
-        .leaf-pool {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(5px);
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            border-top: 5px solid var(--primary-green);
+            border-bottom: 4px solid var(--primary-green);
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             min-height: 140px;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .leaf-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
         }
 
         .leaf {
-            background: linear-gradient(135deg, #a5d6a7, #81c784);
+            background: linear-gradient(135deg, #a5d6a7, #66bb6a);
             color: #1b5e20;
-            padding: 10px 20px;
-            border-radius: 20px 2px 20px 2px;
-            cursor: grab;
-            font-weight: bold;
-            box-shadow: 3px 3px 6px rgba(0,0,0,0.1), inset 0 2px 2px rgba(255,255,255,0.4);
+            padding: 8px 16px;
+            border-radius: 20px 4px 20px 4px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             user-select: none;
-            border: 1px solid rgba(0,0,0,0.05);
+            touch-action: none;
+            white-space: nowrap;
         }
 
-        .leaf.stem-leaf { 
-            background: linear-gradient(135deg, #8d6e63, #5d4037); 
-            color: #fff;
+        .leaf.stem-leaf {
+            background: linear-gradient(135deg, #8d6e63, #5d4037);
+            color: white;
             border: 2px solid var(--accent-gold);
         }
-        
-        .leaf.correct { 
-            background: linear-gradient(135deg, #43a047, #2e7d32) !important; 
-            color: white;
-            box-shadow: 0 0 15px var(--accent-gold); 
-        }
-        
-        .leaf.wrong { 
-            background: linear-gradient(135deg, #a1887f, #6d4c41) !important; 
-            color: #ffeb3b; 
-            animation: shake 0.5s; 
+
+        .leaf.dragging {
+            position: fixed !important;
+            z-index: 3000;
+            opacity: 0.9;
+            transform: scale(1.1) rotate(5deg);
+            pointer-events: none;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-5deg); }
-            75% { transform: rotate(5deg); }
-        }
+        .leaf.correct { background: #2e7d32 !important; color: white; border-color: transparent; cursor: default; }
+        .leaf.wrong { background: #8d6e63 !important; color: #ffeb3b !important; animation: shake 0.4s; }
 
         #check-btn {
             background: var(--accent-gold);
             color: #5d4037;
             border: none;
-            padding: 18px 40px;
-            font-size: 1.4rem;
+            padding: 12px 30px;
+            font-size: 1.1rem;
             font-weight: 900;
-            border-radius: 50px;
+            border-radius: 30px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 0 #d4a017;
             cursor: pointer;
-            margin-bottom: 20px;
             display: none;
-            box-shadow: 0 6px 0 #d4af37, 0 8px 20px rgba(0,0,0,0.2);
-            transition: all 0.1s;
         }
-        #check-btn:hover { background: #ffea00; transform: scale(1.05); }
-        #check-btn:active { transform: translateY(6px); box-shadow: none; }
 
-        #win-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #fff, #e8f5e9);
-            display: none;
+        /* */
+        .game-area {
+            flex: 1;
+            display: flex;
+            justify-content: space-around;
+            align-items: center; 
+            padding: 20px 10px 100px 10px; 
+            gap: 15px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tree {
+            display: flex;
             flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .tree-crown {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #4caf50; 
+            border-radius: 50%;
+            box-shadow: inset 0 -8px 0 rgba(0,0,0,0.1), var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: center;
+            padding: 20px;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tree-trunk {
+            width: 70px;
+            height: 240px; /* 100% länger als das Original */
+            background: #5d4037;
+            border-radius: 15px 15px 0 0; 
+            position: relative;
+            margin-top: -30px; 
+            display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
-            animation: fadeIn 0.5s;
+            z-index: 10;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .trunk-label {
+            background: transparent;
+            color: white; 
+            font-weight: 900;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            pointer-events: none;
+            text-align: center;
+            padding-bottom: 10px;
+        }
 
-        .hidden { display: none !important; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        #win-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 4000;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
-        <!-- SVG Baum Illustration -->
-        <svg width="150" height="150" viewBox="0 0 100 100" style="margin-bottom: 20px;">
-            <path d="M50 80 L50 60 M50 60 Q30 50 35 30 Q50 15 65 30 Q70 50 50 60" stroke="#795548" stroke-width="5" fill="none"/>
-            <circle cx="35" cy="35" r="15" fill="#4caf50" opacity="0.8"/>
-            <circle cx="65" cy="35" r="15" fill="#43a047" opacity="0.8"/>
-            <circle cx="50" cy="25" r="18" fill="#66bb6a" opacity="0.9"/>
-        </svg>
-        <h1>Wortstamm-Baum</h1>
-        <p style="font-size: 1.2rem; color: #555;">Bringe die Wortfamilien nach Hause!</p>
-        <button class="mode-btn" onclick="startGame('easy')">LEICHT<span>Stämme sind schon da. ⭐</span></button>
-        <button class="mode-btn" onclick="startGame('medium')">MITTEL<span>Finde die Stämme selbst. ⭐⭐</span></button>
-        <button class="mode-btn" onclick="startGame('hard')">SCHWER<span>Nur für echte Profis! ⭐⭐⭐</span></button>
+        <h1>Wortstamm-Baum 🌳</h1>
+        <button class="mode-btn" onclick="startGame('easy')">LEICHT<span>Stämme sind schon da ⭐</span></button>
+        <button class="mode-btn" onclick="startGame('medium')">MITTEL<span>Setze zuerst die braunen Stämme ⭐⭐</span></button>
+        <button class="mode-btn" onclick="startGame('hard')">SCHWER<span>Sortiere alles selbst ⭐⭐⭐</span></button>
     </div>
 
-    <h2 id="game-title">Sortiere die Blätter!</h2>
-    <div id="game-info" style="margin-bottom: 15px; font-weight: bold; color: #2e7d32; font-size: 1.1rem;">Verteile alle Blätter auf die Bäume.</div>
+    <header>
+        <h1 id="main-title">Wortstamm-Baum</h1>
+        <div id="info-text" style="font-weight: bold; color: var(--dark-green);">Ziehe die Blätter nach unten auf die Bäume.</div>
+    </header>
 
-    <button id="check-btn" onclick="checkAllTrees()">Bäume prüfen! 🔍</button>
+    <!-- -->
+    <div class="leaf-pool-container">
+        <button id="check-btn" onclick="checkAllTrees()">Bäume prüfen! 🔍</button>
+        <div class="leaf-pool" id="pool"></div>
+    </div>
 
-    <div class="game-container" id="forest"></div>
-    <div class="leaf-pool" id="pool" ondrop="dropToPool(event)" ondragover="allowDrop(event)"></div>
-
+    <div class="game-area" id="forest"></div>
+    
     <div id="win-screen">
-        <h1 style="font-size: 4rem; color: var(--dark-green); margin-bottom: 10px;">Baum-Meister! 🌳</h1>
-        <p style="font-size: 1.5rem;">Du hast die Natur glücklich gemacht!</p>
-        <div id="stars-result" style="font-size: 3rem; margin: 30px; font-weight: 900; color: #f9a825; text-shadow: 2px 2px 0 white;"></div>
-        <button class="mode-btn" style="background: var(--primary-green); color: white; box-shadow: 0 6px 0 var(--dark-green);" onclick="finishGame()">Belohnung & Zurück</button>
+        <h1 style="font-size: 3rem;">🌳</h1>
+        <h2 style="color: var(--dark-green);">Baum-Profi!</h2>
+        <div id="stars-result" style="font-size: 2.5rem; color: #fbc02d; margin: 20px 0;"></div>
+        <button class="mode-btn" style="background: var(--primary-green); color: white;" onclick="finishGame()">Belohnung & Zurück</button>
     </div>
 
     <script>
+        /* */
         const families = [
             { stem: "fahr", members: ["Fahrrad", "Gefahr", "Abfahrt", "Fahrbahn", "beifahren"] },
             { stem: "spiel", members: ["Spielplatz", "Mitspieler", "Vorspiel", "verspielt", "Spielfigur"] },
@@ -294,38 +231,38 @@
 
         let gameMode = 'easy';
         let activeStems = { 1: null, 2: null, 3: null };
-
-              // --- NEUE VARIABLEN FÜR DEN PUNKTE-FREEZE (Ganz oben im Script platzieren) ---
-let scoreCalculated = false;
-let finalRoundScore = 0;
+        let draggedEl = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        
+        let scoreCalculated = false;
+        let finalRoundScore = 0;
 
         function startGame(mode) {
             gameMode = mode;
-            document.getElementById('start-screen').classList.add('hidden');
-            initGame();
+            scoreCalculated = false;
+            finalRoundScore = 0;
+            document.getElementById('start-screen').style.display = 'none';
+            initBoard();
         }
 
-        function initGame() {
+        function initBoard() {
             const forest = document.getElementById('forest');
             const pool = document.getElementById('pool');
-            const info = document.getElementById('game-info');
+            forest.innerHTML = '';
+            pool.innerHTML = '';
 
-            if(gameMode === 'easy') info.innerText = "Die Stämme helfen dir beim Sortieren!";
-            if(gameMode === 'medium') info.innerText = "Pflanze erst die Stämme (braun), dann die Blätter!";
-            if(gameMode === 'hard') info.innerText = "Finde heraus, welche Wörter eine Familie sind!";
-            
             for (let i = 1; i <= 3; i++) {
                 const tree = document.createElement('div');
                 tree.className = 'tree';
-                tree.id = `tree-${i}`;
                 
-                let label = (gameMode === 'easy') ? families[i-1].stem : "?";
-                if(gameMode === 'easy') activeStems[i] = label;
+                let labelText = (gameMode === 'easy') ? families[i-1].stem : "?";
+                if(gameMode === 'easy') activeStems[i] = families[i-1].stem;
 
                 tree.innerHTML = `
-                    <div class="tree-crown" id="crown-${i}" ondrop="dropToTree(event)" ondragover="allowDrop(event)"></div>
-                    <div class="tree-trunk" id="trunk-${i}">
-                        <span class="trunk-label" id="label-${i}">${label}</span>
+                    <div class="tree-crown" id="crown-${i}"></div>
+                    <div class="tree-trunk">
+                        <span class="trunk-label" id="label-${i}">${labelText}</span>
                     </div>
                 `;
                 forest.appendChild(tree);
@@ -335,130 +272,153 @@ let finalRoundScore = 0;
             families.forEach(f => {
                 f.members.forEach(m => leaves.push({ text: m, stem: f.stem, type: 'member' }));
                 if(gameMode === 'medium') leaves.push({ text: f.stem, stem: f.stem, type: 'stem' });
+                if(gameMode === 'hard') leaves.push({ text: f.stem, stem: f.stem, type: 'member' });
             });
             leaves.sort(() => Math.random() - 0.5);
 
-            leaves.forEach((l, idx) => {
+            leaves.forEach((l) => {
                 const div = document.createElement('div');
                 div.className = 'leaf' + (l.type === 'stem' ? ' stem-leaf' : '');
-                div.id = `leaf-${idx}`;
                 div.innerText = l.text;
-                div.draggable = true;
                 div.dataset.stem = l.stem;
                 div.dataset.type = l.type;
-                div.ondragstart = (ev) => ev.dataTransfer.setData("text", ev.target.id);
+                
+                div.onmousedown = (e) => startDrag(e, div);
+                div.ontouchstart = (e) => startDrag(e, div);
+                
                 pool.appendChild(div);
             });
         }
 
-        function allowDrop(ev) { ev.preventDefault(); }
+        /* */
+        function startDrag(e, el) {
+            if (el.classList.contains('correct')) return;
+            
+            draggedEl = el;
+            const evt = e.touches ? e.touches[0] : e;
+            const rect = el.getBoundingClientRect();
+            
+            dragOffsetX = evt.clientX - rect.left;
+            dragOffsetY = evt.clientY - rect.top;
 
-        function dropToTree(ev) {
-            ev.preventDefault();
-            const id = ev.dataTransfer.getData("text");
-            const leaf = document.getElementById(id);
-            const crown = ev.target.closest('.tree-crown');
-            leaf.classList.remove('correct', 'wrong');
-            crown.appendChild(leaf);
-            checkPoolEmpty();
+            el.style.width = rect.width + 'px';
+            el.classList.add('dragging');
+            updatePosition(evt.clientX, evt.clientY);
+            
+            const moveHandler = (moveEvent) => {
+                const mEvt = moveEvent.touches ? moveEvent.touches[0] : moveEvent;
+                updatePosition(mEvt.clientX, mEvt.clientY);
+                if (moveEvent.cancelable) moveEvent.preventDefault();
+            };
+
+            const stopHandler = (upEvent) => {
+                const uEvt = upEvent.changedTouches ? upEvent.changedTouches[0] : upEvent;
+                document.removeEventListener('mousemove', moveHandler);
+                document.removeEventListener('mouseup', stopHandler);
+                document.removeEventListener('touchmove', moveHandler);
+                document.removeEventListener('touchend', stopHandler);
+                
+                el.classList.remove('dragging');
+                el.style.left = '';
+                el.style.top = '';
+                el.style.width = '';
+                
+                const dropTarget = document.elementFromPoint(uEvt.clientX, uEvt.clientY);
+                finalizeDrop(el, dropTarget);
+            };
+
+            document.addEventListener('mousemove', moveHandler);
+            document.addEventListener('mouseup', stopHandler);
+            document.addEventListener('touchmove', moveHandler, { passive: false });
+            document.addEventListener('touchend', stopHandler);
         }
 
-        function dropToPool(ev) {
-            ev.preventDefault();
-            const id = ev.dataTransfer.getData("text");
-            const leaf = document.getElementById(id);
-            leaf.classList.remove('correct', 'wrong');
-            document.getElementById('pool').appendChild(leaf);
-            checkPoolEmpty();
+        function updatePosition(clientX, clientY) {
+            if (!draggedEl) return;
+            draggedEl.style.left = (clientX - dragOffsetX) + 'px';
+            draggedEl.style.top = (clientY - dragOffsetY) + 'px';
         }
 
-        function checkPoolEmpty() {
+        function finalizeDrop(el, target) {
+            const crown = target ? target.closest('.tree-crown') : null;
+            if (crown) {
+                crown.appendChild(el);
+            } else {
+                document.getElementById('pool').appendChild(el);
+            }
+            checkPool();
+        }
+
+        function checkPool() {
             const pool = document.getElementById('pool');
             document.getElementById('check-btn').style.display = (pool.children.length === 0) ? 'block' : 'none';
         }
- 
-// --- ERSATZ FÜR DEINE FUNKTIONEN ---
 
-function checkAllTrees() {
-    let allCorrect = true;
-    const pointsPerTree = (gameMode === 'easy') ? 1 : 2;
-    let currentAttemptScore = 0;
+        /* */
+        function checkAllTrees() {
+            let allCorrect = true;
+            let currentAttemptScore = 0;
+            const pointsPerTree = (gameMode === 'easy') ? 1 : (gameMode === 'medium' ? 2 : 3);
 
-    // 1. Stämme ermitteln (für Medium/Hard)
-    for (let i = 1; i <= 3; i++) {
-        const crown = document.getElementById(`crown-${i}`);
-        if (gameMode === 'medium') {
-            const stemLeaf = Array.from(crown.children).find(l => l.dataset.type === 'stem');
-            activeStems[i] = stemLeaf ? stemLeaf.dataset.stem : null;
-        } else if (gameMode === 'hard') {
-            const firstLeaf = crown.children[0];
-            activeStems[i] = firstLeaf ? firstLeaf.dataset.stem : null;
-        }
-        
-        const label = document.getElementById(`label-${i}`);
-        label.innerText = activeStems[i] || "?";
-    }
-
-    // 2. Blätter prüfen und Punkte zählen
-    for (let i = 1; i <= 3; i++) {
-        const crown = document.getElementById(`crown-${i}`);
-        const stem = activeStems[i];
-        let treeIsCorrect = true;
-
-        if (!stem || crown.children.length === 0) { 
-            allCorrect = false; 
-            treeIsCorrect = false;
-        } else {
-            Array.from(crown.children).forEach(leaf => {
-                if (leaf.dataset.stem === stem) {
-                    leaf.classList.add('correct');
-                    leaf.classList.remove('wrong');
-                    leaf.draggable = false;
-                } else {
-                    leaf.classList.add('wrong');
-                    leaf.classList.remove('correct');
-                    leaf.draggable = true;
-                    allCorrect = false;
-                    treeIsCorrect = false;
+            // 1. Stämme ermitteln
+            for (let i = 1; i <= 3; i++) {
+                const crown = document.getElementById(`crown-${i}`);
+                if (gameMode === 'medium') {
+                    const stemLeaf = Array.from(crown.children).find(l => l.dataset.type === 'stem');
+                    activeStems[i] = stemLeaf ? stemLeaf.dataset.stem : null;
+                } else if (gameMode === 'hard') {
+                    const firstLeaf = crown.children[0];
+                    activeStems[i] = firstLeaf ? firstLeaf.dataset.stem : null;
                 }
-            });
+                document.getElementById(`label-${i}`).innerText = activeStems[i] || "?";
+            }
+
+            // 2. Bäume prüfen
+            for (let i = 1; i <= 3; i++) {
+                const crown = document.getElementById(`crown-${i}`);
+                const stem = activeStems[i];
+                let treeError = false;
+
+                if (!stem || crown.children.length === 0) {
+                    allCorrect = false;
+                    treeError = true;
+                } else {
+                    Array.from(crown.children).forEach(leaf => {
+                        if (leaf.dataset.stem === stem) {
+                            leaf.classList.add('correct');
+                            leaf.classList.remove('wrong');
+                            // Sperre das Blatt, damit es nicht mehr bewegt werden kann
+                        } else {
+                            leaf.classList.add('wrong');
+                            allCorrect = false;
+                            treeError = true;
+                        }
+                    });
+                }
+                // Wenn dieser Baum aktuell fehlerfrei ist, addiere Punkte für den aktuellen Versuch
+                if (!treeError && stem) currentAttemptScore += pointsPerTree;
+            }
+
+            // PUNKTE-FREEZE: Nur beim ersten Mal werten
+            if (!scoreCalculated) {
+                finalRoundScore = currentAttemptScore;
+                scoreCalculated = true;
+            }
+
+            if (allCorrect) {
+                document.getElementById('stars-result').innerText = `Ergebnis: ${finalRoundScore} Sterne! ⭐`;
+                document.getElementById('win-screen').style.display = 'flex';
+            } else {
+                const info = document.getElementById('info-text');
+                info.innerText = "Oje! Manche Blätter sind braun geworden. Hänge sie an den richtigen Baum!";
+                info.style.color = "#8d6e63";
+            }
         }
 
-        // Wenn dieser Baum aktuell fehlerfrei ist, addiere Punkte
-        if (treeIsCorrect) {
-            currentAttemptScore += pointsPerTree;
+        function finishGame() {
+            if (window.parent && window.parent.addStars) window.parent.addStars(finalRoundScore);
+            location.reload();
         }
-    }
-
-    // --- PUNKTE-FREEZE LOGIK ---
-    // Nur beim allerersten Mal Prüfen wird der Score für das Ende gespeichert
-    if (!scoreCalculated) {
-        finalRoundScore = currentAttemptScore;
-        scoreCalculated = true;
-        console.log("Erster Versuch gewertet: " + finalRoundScore + " Punkte eingefroren.");
-    }
-
-    if (allCorrect) {
-        showWin();
-    } else {
-        const info = document.getElementById('game-info');
-        info.innerText = "Oje! Manche Blätter sind braun geworden. Hänge sie an den richtigen Baum!";
-        info.style.color = "#8d6e63";
-    }
-}
-
-function showWin() {
-    // Nutzt die eingefrorenen Punkte vom ersten Versuch
-    document.getElementById('stars-result').innerText = `+ ${finalRoundScore} Sterne ⭐`;
-    document.getElementById('win-screen').dataset.stars = finalRoundScore;
-    document.getElementById('win-screen').style.display = 'flex';
-}
-
-function finishGame() {
-    const stars = parseInt(document.getElementById('win-screen').dataset.stars) || 0;
-    if (window.parent && window.parent.addStars) window.parent.addStars(stars);
-    if (window.parent && window.parent.showMenu) window.parent.showMenu();
-}
     </script>
 </body>
 </html>
