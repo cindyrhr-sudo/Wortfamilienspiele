@@ -479,95 +479,109 @@
 
         function openChest(id) {
             if (gameState.points >= 10) {
-                // Wir ziehen die Punkte sofort ab, um Doppel-Klicks zu vermeiden
                 gameState.points -= 10;
                 
-                // Wir finden das Element direkt über eine ID-Suche für die Animation
-                // (Ich habe im Render-Teil unten ein data-id Attribut hinzugefügt)
                 const stationEl = document.querySelector(`[data-station-id="${id}"] .mini-chest`);
                 if(stationEl) {
                     animateGemsToInventory(stationEl);
                 }
 
-                // Status ändern
+                // Status sofort auf 'opened' setzen, damit die Kiste verschwindet
                 gameState.stations.find(st => st.id === id).status = 'opened';
                 
+                // WICHTIG: Erst nach der Flug-Animation landet der Diamant in der Tasche
                 setTimeout(() => {
+                    gameState.inventory.push("💎"); 
                     saveAndRefresh();
                     checkMapCompletion();
-                }, 800);
-            } else { alert("Nicht genug Sterne für diese Truhe!"); }
+                }, 850);
+            } else { 
+                alert("Nicht genug Sterne für diese Truhe!"); 
+            }
         }
 
-        function renderMap() {
-            const container = document.getElementById('map-container');
-            if (!container) return;
+        function animateGemsToInventory(sourceEl) {
+            const startRect = sourceEl.getBoundingClientRect();
+            const invHeader = document.querySelector('.inventory h3');
+            const endRect = invHeader.getBoundingClientRect();
 
-            const imgIdx = (gameState.mapLevel - 1) % mapImages.length;
-            container.style.backgroundImage = `url('${mapImages[imgIdx]}')`;
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const gem = document.createElement('div');
+                    gem.className = 'flying-gem';
+                    gem.innerText = gemEmojis[i % gemEmojis.length];
+                    gem.style.left = startRect.left + 'px';
+                    gem.style.top = startRect.top + 'px';
+                    document.body.appendChild(gem);
 
-            container.innerHTML = `
-                <div class="map-ratio-box">
-                    ${gameState.stations.map(s => `
-                        <div class="station ${s.status}" 
-                             data-station-id="${s.id}"
-                             style="top: ${s.top}; left: ${s.left};">
-                            <div class="station-icon" onclick="handleStationClick(${s.id}, 'station')">
-                                ${s.status === 'opened' || s.status === 'unlocked' ? s.emoji : '🔒'}
-                                ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
-                            </div>
-                            <span class="station-label">${s.name}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+                    requestAnimationFrame(() => {
+                        gem.style.left = (endRect.left + 20) + 'px';
+                        gem.style.top = (endRect.top + 10) + 'px';
+                        gem.style.transform = 'scale(0.5) rotate(360deg)';
+                        gem.style.opacity = '0';
+                    });
+
+                    setTimeout(() => gem.remove(), 800);
+                }, i * 150);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('points').innerText = gameState.points;
+            document.getElementById('current-map-num').innerText = ((gameState.mapLevel - 1) % 5) + 1;
+            
+            const invList = document.getElementById('inventory-list');
+            if (gameState.inventory.length > 0) {
+                // Zeigt alle gesammelten Diamanten und Schätze an
+                invList.innerHTML = gameState.inventory.map(e => `<span class="item-slot">${e}</span>`).join('');
+            } else {
+                invList.innerHTML = '<p style="font-size: 0.8rem; color: #888;">Noch keine Schätze...</p>';
+            }
         }
 
         function openChest(id) {
             if (gameState.points >= 10) {
                 gameState.points -= 10;
                 
-                // Animation auslösen, bevor Status geändert wird
-                const stationEl = document.querySelector(`.station:nth-child(${id}) .mini-chest`);
+                const stationEl = document.querySelector(`[data-station-id="${id}"] .mini-chest`);
                 if(stationEl) {
                     animateGemsToInventory(stationEl);
                 }
 
                 gameState.stations.find(st => st.id === id).status = 'opened';
                 
-                // Kurze Verzögerung für die Animation vor dem Refresh
+                // Belohnung nach Animation in die Tasche
                 setTimeout(() => {
+                    gameState.inventory.push("💎"); 
                     saveAndRefresh();
                     checkMapCompletion();
-                }, 800);
-            } else { alert("Nicht genug Sterne!"); }
+                }, 850);
+            } else { 
+                alert("Nicht genug Sterne für diese Truhe!"); 
+            }
         }
 
-        /* NEU: Edelstein-Animations-Funktion */
         function animateGemsToInventory(sourceEl) {
             const startRect = sourceEl.getBoundingClientRect();
             const invEl = document.querySelector('.inventory h3');
             const endRect = invEl.getBoundingClientRect();
 
-            // Erzeuge 3 kleine Edelsteine
             for (let i = 0; i < 3; i++) {
                 setTimeout(() => {
                     const gem = document.createElement('div');
                     gem.className = 'flying-gem';
-                    gem.innerText = gemEmojis[Math.floor(Math.random() * gemEmojis.length)];
+                    gem.innerText = gemEmojis[i % gemEmojis.length];
                     gem.style.left = startRect.left + 'px';
                     gem.style.top = startRect.top + 'px';
                     document.body.appendChild(gem);
 
-                    // Animation starten
                     requestAnimationFrame(() => {
                         gem.style.left = (endRect.left + 20) + 'px';
-                        gem.style.top = (endRect.top + 20) + 'px';
+                        gem.style.top = (endRect.top + 10) + 'px';
                         gem.style.transform = 'scale(0.5) rotate(360deg)';
                         gem.style.opacity = '0';
                     });
 
-                    // Nach Animation entfernen
                     setTimeout(() => gem.remove(), 800);
                 }, i * 150);
             }
