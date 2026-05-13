@@ -22,7 +22,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Verhindert das Scrollen der gesamten Seite */
+            overflow: hidden;
         }
 
         .glass-card {
@@ -35,42 +35,46 @@
 
         .map-viewport {
             flex: 1.5;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            height: 100%;
             overflow: hidden;
             position: relative;
         }
 
-        /* Dieser Container sorgt dafür, dass die Karte immer komplett sichtbar bleibt */
         .map-wrapper {
+            flex: 1;
             position: relative;
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 10px;
+            padding: 20px;
+            overflow: hidden;
         }
 
-        /* Der map-container behält das Seitenverhältnis deiner Karte (3:4) bei */
-        .map-container-style {
+        /* Der entscheidende Fix: Die Karte skaliert, aber behält das 3:4 Verhältnis */
+        #map-container {
             position: relative;
+            height: 100%;
+            width: auto;
             aspect-ratio: 3 / 4;
-            max-width: 100%;
-            max-height: 100%;
             background-color: #e3d5b8;
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            border: 6px solid white;
+            background-position: center;
+            border: 8px solid white;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            /* Verhindert das Stapeln: Der Container hat immer eine physische Größe */
+            min-height: 200px; 
         }
 
         .station {
             position: absolute;
-            width: 12%;
-            height: 9%;
+            width: 14%;
+            height: 10%;
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -85,23 +89,23 @@
 
         .mini-chest {
             position: absolute;
-            top: -12px;
-            right: -12px;
-            font-size: 1.2rem;
+            top: -10px;
+            right: -10px;
+            font-size: 1.3rem;
             background: white;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             animation: bounce 2s infinite;
         }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            50% { transform: translateY(-5px); }
         }
 
         .item-slot {
@@ -115,14 +119,6 @@
             margin: 3px;
         }
 
-        .flying-gem {
-            position: fixed;
-            z-index: 5000;
-            pointer-events: none;
-            font-size: 2rem;
-            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
         .game-card-modern {
             transition: all 0.2s ease;
             border: 2px solid transparent;
@@ -131,6 +127,14 @@
             border-color: var(--primary);
             transform: translateX(5px);
             background-color: #f0fdf4;
+        }
+
+        .flying-gem {
+            position: fixed;
+            z-index: 5000;
+            pointer-events: none;
+            font-size: 2rem;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
     </style>
 </head>
@@ -151,18 +155,16 @@
     </header>
 
     <main class="flex-1 flex p-4 gap-4 overflow-hidden">
-        <!-- LINKES PANEL: Die Karte (Immer im Viewport) -->
         <section class="map-viewport glass-card p-4">
-            <h2 class="text-sm font-semibold mb-2 text-slate-500 text-center uppercase tracking-wider">Geheimnisvolle Insel</h2>
+            <h2 class="text-sm font-semibold mb-2 text-slate-500 text-center uppercase tracking-wider" id="island-name">Geheimnisvolle Insel</h2>
             <div class="map-wrapper">
-                <!-- Die Bilder werden aus deinem GitHub-Ordner geladen -->
-                <div id="map-container" class="map-container-style">
+                <!-- Der Container für das Kartenbild -->
+                <div id="map-container">
                     <!-- Stationen werden hier via JS gerendert -->
                 </div>
             </div>
         </section>
 
-        <!-- RECHTES PANEL: Inventar & Spiele (Scrollbar falls nötig) -->
         <section class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
             <!-- Inventar -->
             <div class="glass-card p-5 border-l-4 border-green-500">
@@ -179,7 +181,6 @@
             <div class="glass-card p-5">
                 <h3 class="font-bold text-slate-800 mb-3 text-sm">Bereit für ein Abenteuer?</h3>
                 <div class="space-y-2">
-                    <!-- Button 1 -->
                     <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel1.html')">
                         <div class="text-xl bg-green-50 w-10 h-10 flex items-center justify-center rounded-lg">🌳</div>
                         <div>
@@ -187,7 +188,6 @@
                             <div class="text-[10px] text-slate-500">Level 1: Finde den Kern</div>
                         </div>
                     </button>
-                    <!-- Button 2 -->
                     <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel2.html')">
                         <div class="text-xl bg-orange-50 w-10 h-10 flex items-center justify-center rounded-lg">🧪</div>
                         <div>
@@ -195,7 +195,6 @@
                             <div class="text-[10px] text-slate-500">Level 2: Zerlege die Wörter</div>
                         </div>
                     </button>
-                    <!-- Button 3 -->
                     <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel3.html')">
                         <div class="text-xl bg-pink-50 w-10 h-10 flex items-center justify-center rounded-lg">🔍</div>
                         <div>
@@ -203,7 +202,6 @@
                             <div class="text-[10px] text-slate-500">Level 3: Wortfamilie</div>
                         </div>
                     </button>
-                    <!-- Button 4 -->
                     <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel4.html')">
                         <div class="text-xl bg-blue-50 w-10 h-10 flex items-center justify-center rounded-lg">📖</div>
                         <div>
@@ -211,7 +209,6 @@
                             <div class="text-[10px] text-slate-500">Level 4: Text-Check</div>
                         </div>
                     </button>
-                    <!-- Button 5 -->
                     <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel5.html')">
                         <div class="text-xl bg-purple-50 w-10 h-10 flex items-center justify-center rounded-lg">✨</div>
                         <div>
@@ -223,6 +220,7 @@
             </div>
         </section>
 
+        <!-- Game Iframe Overlay -->
         <section id="game-view" class="hidden fixed inset-0 bg-white z-[200] flex flex-col p-4">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg">⬅ ZURÜCK</button>
@@ -245,7 +243,6 @@
     </div>
 
     <script>
-        // Die Bilder werden direkt aus deinem Ordner geladen
         const mapImages = ['karte.png', 'karte2.png', 'karte3.png', 'karte4.png', 'karte5.png'];
         const masterTreasures = ["💵", "🏆", "👑", "🦄", "💍", "🔱", "🧿", "✨", "🌈"];
         const gemEmojis = ["💰", "🐚", "🧚"];
@@ -285,8 +282,9 @@
             const container = document.getElementById('map-container');
             const imgIdx = (gameState.mapLevel - 1) % mapImages.length;
             
-            // Setzt das Hintergrundbild aus deinem Ordner
-            container.style.backgroundImage = `url('${mapImages[imgIdx]}')`;
+            // Bildpfad setzen
+            const imgUrl = mapImages[imgIdx];
+            container.style.backgroundImage = `url('${imgUrl}')`;
 
             container.innerHTML = gameState.stations.map(s => `
                 <div class="station ${s.status}" data-station-id="${s.id}" style="top: ${s.top}; left: ${s.left};">
@@ -296,7 +294,7 @@
                         </div>
                         ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
                     </div>
-                    <span class="text-[8px] font-bold bg-white/80 px-1 py-0.5 rounded shadow-sm whitespace-nowrap mt-1">${s.name}</span>
+                    <span class="text-[10px] font-bold bg-white/90 px-2 py-0.5 rounded-lg shadow-sm whitespace-nowrap mt-1 border border-slate-100">${s.name}</span>
                 </div>
             `).join('');
         }
@@ -351,7 +349,7 @@
                     requestAnimationFrame(() => {
                         gem.style.left = (endRect.left + 20) + 'px';
                         gem.style.top = (endRect.top + 10) + 'px';
-                        gem.style.transform = 'scale(0.5) rotate(360deg)';
+                        gem.style.transform = 'scale(0.3) rotate(360deg)';
                         gem.style.opacity = '0';
                     });
                     setTimeout(() => gem.remove(), 800);
@@ -368,8 +366,8 @@
                 gameState.inventory.forEach(item => { counts[item] = (counts[item] || 0) + 1; });
                 invList.innerHTML = Object.keys(counts).map(key => `
                     <div class="item-slot">
-                        <span class="text-lg">${key}</span> 
-                        ${counts[key] > 1 ? `<span class="text-[10px] font-bold text-green-600">x${counts[key]}</span>` : ''}
+                        <span class="text-xl">${key}</span> 
+                        ${counts[key] > 1 ? `<span class="text-xs font-bold text-green-600">x${counts[key]}</span>` : ''}
                     </div>
                 `).join('');
             } else {
