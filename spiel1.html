@@ -372,62 +372,92 @@
             const pool = document.getElementById('pool');
             document.getElementById('check-btn').style.display = (pool.children.length === 0) ? 'block' : 'none';
         }
+       // --- NEUE VARIABLEN FÜR DEN PUNKTE-FREEZE (Ganz oben im Script platzieren) ---
+let scoreCalculated = false;
+let finalRoundScore = 0;
 
-        function checkAllTrees() {
-            let allCorrect = true;
-            for (let i = 1; i <= 3; i++) {
-                const crown = document.getElementById(`crown-${i}`);
-                if (gameMode === 'medium') {
-                    const stemLeaf = Array.from(crown.children).find(l => l.dataset.type === 'stem');
-                    activeStems[i] = stemLeaf ? stemLeaf.dataset.stem : null;
-                } else if (gameMode === 'hard') {
-                    const firstLeaf = crown.children[0];
-                    activeStems[i] = firstLeaf ? firstLeaf.dataset.stem : null;
+// --- ERSATZ FÜR DEINE FUNKTIONEN ---
+
+function checkAllTrees() {
+    let allCorrect = true;
+    const pointsPerTree = (gameMode === 'easy') ? 1 : 2;
+    let currentAttemptScore = 0;
+
+    // 1. Stämme ermitteln (für Medium/Hard)
+    for (let i = 1; i <= 3; i++) {
+        const crown = document.getElementById(`crown-${i}`);
+        if (gameMode === 'medium') {
+            const stemLeaf = Array.from(crown.children).find(l => l.dataset.type === 'stem');
+            activeStems[i] = stemLeaf ? stemLeaf.dataset.stem : null;
+        } else if (gameMode === 'hard') {
+            const firstLeaf = crown.children[0];
+            activeStems[i] = firstLeaf ? firstLeaf.dataset.stem : null;
+        }
+        
+        const label = document.getElementById(`label-${i}`);
+        label.innerText = activeStems[i] || "?";
+    }
+
+    // 2. Blätter prüfen und Punkte zählen
+    for (let i = 1; i <= 3; i++) {
+        const crown = document.getElementById(`crown-${i}`);
+        const stem = activeStems[i];
+        let treeIsCorrect = true;
+
+        if (!stem || crown.children.length === 0) { 
+            allCorrect = false; 
+            treeIsCorrect = false;
+        } else {
+            Array.from(crown.children).forEach(leaf => {
+                if (leaf.dataset.stem === stem) {
+                    leaf.classList.add('correct');
+                    leaf.classList.remove('wrong');
+                    leaf.draggable = false;
+                } else {
+                    leaf.classList.add('wrong');
+                    leaf.classList.remove('correct');
+                    leaf.draggable = true;
+                    allCorrect = false;
+                    treeIsCorrect = false;
                 }
-                
-                const label = document.getElementById(`label-${i}`);
-                label.innerText = activeStems[i] || "?";
-            }
-
-            for (let i = 1; i <= 3; i++) {
-                const crown = document.getElementById(`crown-${i}`);
-                const stem = activeStems[i];
-                if (!stem || crown.children.length === 0) { allCorrect = false; continue; }
-
-                Array.from(crown.children).forEach(leaf => {
-                    if (leaf.dataset.stem === stem) {
-                        leaf.classList.add('correct');
-                        leaf.classList.remove('wrong');
-                        leaf.draggable = false;
-                    } else {
-                        leaf.classList.add('wrong');
-                        leaf.classList.remove('correct');
-                        leaf.draggable = true;
-                        allCorrect = false;
-                    }
-                });
-            }
-
-            if (allCorrect) {
-                showWin();
-            } else {
-                document.getElementById('game-info').innerText = "Oje! Manche Blätter sind braun geworden. Hänge sie an den richtigen Baum!";
-                document.getElementById('game-info').style.color = "#8d6e63";
-            }
+            });
         }
 
-        function showWin() {
-            const finalStars = 50; 
-            document.getElementById('stars-result').innerText = `+ ${finalStars} Sterne ⭐`;
-            document.getElementById('win-screen').dataset.stars = finalStars;
-            document.getElementById('win-screen').style.display = 'flex';
+        // Wenn dieser Baum aktuell fehlerfrei ist, addiere Punkte
+        if (treeIsCorrect) {
+            currentAttemptScore += pointsPerTree;
         }
+    }
 
-        function finishGame() {
-            const stars = parseInt(document.getElementById('win-screen').dataset.stars) || 0;
-            if (window.parent && window.parent.addStars) window.parent.addStars(stars);
-            if (window.parent && window.parent.showMenu) window.parent.showMenu();
-        }
+    // --- PUNKTE-FREEZE LOGIK ---
+    // Nur beim allerersten Mal Prüfen wird der Score für das Ende gespeichert
+    if (!scoreCalculated) {
+        finalRoundScore = currentAttemptScore;
+        scoreCalculated = true;
+        console.log("Erster Versuch gewertet: " + finalRoundScore + " Punkte eingefroren.");
+    }
+
+    if (allCorrect) {
+        showWin();
+    } else {
+        const info = document.getElementById('game-info');
+        info.innerText = "Oje! Manche Blätter sind braun geworden. Hänge sie an den richtigen Baum!";
+        info.style.color = "#8d6e63";
+    }
+}
+
+function showWin() {
+    // Nutzt die eingefrorenen Punkte vom ersten Versuch
+    document.getElementById('stars-result').innerText = `+ ${finalRoundScore} Sterne ⭐`;
+    document.getElementById('win-screen').dataset.stars = finalRoundScore;
+    document.getElementById('win-screen').style.display = 'flex';
+}
+
+function finishGame() {
+    const stars = parseInt(document.getElementById('win-screen').dataset.stars) || 0;
+    if (window.parent && window.parent.addStars) window.parent.addStars(stars);
+    if (window.parent && window.parent.showMenu) window.parent.showMenu();
+}
     </script>
 </body>
 </html>
