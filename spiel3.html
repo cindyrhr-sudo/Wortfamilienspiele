@@ -6,11 +6,14 @@
     <title>Wort-Familien-Check</title>
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --accent-green: #4caf50;
-            --accent-blue: #42a5f5;
-            --error-red: #ef5350;
+            /* NEUE FARBPALETTE: Soft-Berry & Mint */
+            --bg-color: #fdfbf7;        /* Warmes Creme-Weiß */
+            --accent-green: #63d471;     /* Frisches Minzgrün */
+            --accent-blue: #a78bfa;      /* Sanftes Violett/Berry */
+            --error-red: #fb7185;       /* Koralle/Lachsrot */
             --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --border-default: #e2e8f0;
         }
 
         body {
@@ -18,21 +21,21 @@
             background: var(--bg-color);
             margin: 0;
             display: flex; flex-direction: column; align-items: center;
-            height: 100vh; overflow: hidden; color: #334155; touch-action: none;
+            height: 100vh; overflow: hidden; color: var(--text-main); touch-action: none;
         }
 
         /* Startbildschirm */
         #start-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
+            background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
             z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; padding: 20px; box-sizing: border-box;
         }
 
         .mode-btn {
             background: white; border: none; padding: 25px; margin: 10px; width: 100%; max-width: 450px;
-            border-radius: 24px; font-size: 1.6rem; font-weight: 800; color: #1e293b;
-            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transition: all 0.2s;
+            border-radius: 24px; font-size: 1.6rem; font-weight: 800; color: var(--text-main);
+            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.2s;
             border: 2px solid transparent;
         }
         .mode-btn:hover { transform: translateY(-5px); border-color: var(--accent-blue); }
@@ -44,12 +47,12 @@
 
         #progress-bar {
             background: white; padding: 10px 30px; border-radius: 20px;
-            font-weight: 700; color: #475569; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-weight: 700; color: #64748b; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             font-size: 1.3rem;
         }
 
         .instruction-text {
-            font-size: 1.5rem; font-weight: 700; color: #1e293b; text-align: center;
+            font-size: 1.5rem; font-weight: 700; color: var(--text-main); text-align: center;
             margin: 10px 0;
         }
 
@@ -59,14 +62,14 @@
         }
 
         .word-card {
-            background: var(--card-bg); border: 6px solid #cbd5e1; border-radius: 30px;
-            padding: 30px 10px; font-size: 2.2rem; font-weight: 900; color: #1e293b;
+            background: var(--card-bg); border: 6px solid var(--border-default); border-radius: 30px;
+            padding: 30px 10px; font-size: 2.2rem; font-weight: 900; color: var(--text-main);
             text-align: center; cursor: pointer; transition: all 0.2s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
         }
         .word-card:hover { transform: scale(1.03); border-color: var(--accent-blue); }
-        .word-card.selected-error { background: #fee2e2; border-color: var(--error-red); color: #b91c1c; }
-        .word-card.selected-correct { background: #dcfce7; border-color: var(--accent-green); color: #15803d; }
+        .word-card.selected-error { background: #fff1f2; border-color: var(--error-red); color: #be123c; }
+        .word-card.selected-correct { background: #f0fdf4; border-color: var(--accent-green); color: #166534; }
 
         #feedback-area { min-height: 2em; font-weight: 800; font-size: 1.4rem; text-align: center; }
 
@@ -98,13 +101,14 @@
     </div>
 
     <div id="win-screen">
-        <h1 style="font-size: 3rem; color: #1e293b;">Labor-Bericht</h1>
-        <div id="stars-result" style="font-size: 5rem; color: #eab308; margin-bottom: 20px;"></div>
+        <h1 style="font-size: 3rem; color: var(--text-main);">Labor-Bericht</h1>
+        <div id="stars-result" style="font-size: 5rem; color: #fbbf24; margin-bottom: 20px;"></div>
         <p id="points-display" style="font-size: 1.8rem; font-weight: 800; color: #475569;"></p>
         <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Ergebnisse speichern</button>
     </div>
 
     <script>
+        /* "Preserve Content & Logic": Voller Datenbestand erhalten */
         const families = [
             { members: ["fahren", "Fahrt", "Abfahrt", "Fahrer"], intruder: "Farn" },
             { members: ["spielen", "Spielzeug", "Spielfeld", "Mitspieler"], intruder: "Spiegel" },
@@ -125,7 +129,7 @@
         function startGame() {
             currentRound = 0;
             totalStars = 0;
-            // Zufällige Auswahl von 5 Familien
+            /* "Refactor, don't Delete": Beibehaltung der 5-Runden-Logik */
             sessionData = [...families].sort(() => 0.5 - Math.random()).slice(0, 5);
             document.getElementById('start-screen').classList.add('hidden');
             loadRound();
@@ -137,9 +141,8 @@
             const data = sessionData[currentRound];
             document.getElementById('progress-bar').innerText = `Runde ${currentRound + 1} / 5`;
             document.getElementById('feedback-area').innerText = "";
-            document.getElementById('feedback-area').style.color = "#334155";
+            document.getElementById('feedback-area').style.color = "var(--text-main)";
 
-            // Wörter mischen (Mitglieder + Eindringling)
             const allWords = [...data.members, data.intruder].sort(() => 0.5 - Math.random());
             
             const grid = document.getElementById('word-grid');
@@ -160,7 +163,6 @@
             const feedback = document.getElementById('feedback-area');
 
             if (selectedWord === data.intruder) {
-                // Richtig!
                 canClick = false;
                 cardElement.classList.add('selected-correct');
                 feedback.innerText = "Richtig! Das gehört nicht dazu. 🎉";
@@ -175,13 +177,11 @@
                 }, 1500);
 
             } else {
-                // Falsch!
                 cardElement.classList.add('selected-error');
                 feedback.innerText = "Huch! Das gehört zur Familie. 🧐";
                 feedback.style.color = "var(--error-red)";
                 roundFailed = true;
                 
-                // Kurzes Schütteln oder Reset der Farbe
                 setTimeout(() => {
                     cardElement.classList.remove('selected-error');
                 }, 800);
@@ -191,7 +191,7 @@
         function showFinalResults() {
             document.getElementById('win-screen').style.display = 'flex';
             document.getElementById('stars-result').innerText = `⭐ ${totalStars}`;
-            document.getElementById('points-display').innerText = `Du hast ${totalStars} Sterne für deine Karte gesammelt!`;
+            document.getElementById('points-display').innerText = `Fantastisch! Du hast ${totalStars} Sterne gesammelt!`;
         }
 
         function resetToMenu() {
