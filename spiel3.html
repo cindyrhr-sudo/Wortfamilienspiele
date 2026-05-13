@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>Wort-Familien-Check</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --accent-green: #4caf50;
+            --accent-blue: #42a5f5;
+            --error-red: #ef5350;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            display: flex; flex-direction: column; align-items: center;
+            height: 100vh; overflow: hidden; color: #334155; touch-action: none;
+        }
+
+        /* Startbildschirm */
+        #start-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
+            z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
+        }
+
+        .mode-btn {
+            background: white; border: none; padding: 25px; margin: 10px; width: 100%; max-width: 450px;
+            border-radius: 24px; font-size: 1.6rem; font-weight: 800; color: #1e293b;
+            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .mode-btn:hover { transform: translateY(-5px); border-color: var(--accent-blue); }
+
+        .game-container {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: space-around; width: 100%; max-width: 1000px; padding: 20px; box-sizing: border-box;
+        }
+
+        #progress-bar {
+            background: white; padding: 10px 30px; border-radius: 20px;
+            font-weight: 700; color: #475569; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-size: 1.3rem;
+        }
+
+        .instruction-text {
+            font-size: 1.5rem; font-weight: 700; color: #1e293b; text-align: center;
+            margin: 10px 0;
+        }
+
+        #word-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+            width: 100%; max-width: 600px;
+        }
+
+        .word-card {
+            background: var(--card-bg); border: 6px solid #cbd5e1; border-radius: 30px;
+            padding: 30px 10px; font-size: 2.2rem; font-weight: 900; color: #1e293b;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .word-card:hover { transform: scale(1.03); border-color: var(--accent-blue); }
+        .word-card.selected-error { background: #fee2e2; border-color: var(--error-red); color: #b91c1c; }
+        .word-card.selected-correct { background: #dcfce7; border-color: var(--accent-green); color: #15803d; }
+
+        #feedback-area { min-height: 2em; font-weight: 800; font-size: 1.4rem; text-align: center; }
+
+        #win-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; display: none; z-index: 3000;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <h1 style="font-size: 3.5rem; color: #0f172a; margin: 0;">Familien-Check 🔍</h1>
+        <p style="font-size: 1.3rem; color: #475569; margin-bottom: 30px;">Finde das Wort, das nicht zur Familie gehört!</p>
+        <button class="mode-btn" onclick="startGame()">Spiel starten! 🚀</button>
+    </div>
+
+    <div class="game-container">
+        <div id="progress-bar">Runde 1 / 5</div>
+        
+        <div class="instruction-text">Welches Wort passt <u>nicht</u>?</div>
+
+        <div id="word-grid"></div>
+
+        <div id="feedback-area"></div>
+    </div>
+
+    <div id="win-screen">
+        <h1 style="font-size: 3rem; color: #1e293b;">Labor-Bericht</h1>
+        <div id="stars-result" style="font-size: 5rem; color: #eab308; margin-bottom: 20px;"></div>
+        <p id="points-display" style="font-size: 1.8rem; font-weight: 800; color: #475569;"></p>
+        <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Ergebnisse speichern</button>
+    </div>
+
+    <script>
+        const families = [
+            { members: ["fahren", "Fahrt", "Abfahrt", "Fahrer"], intruder: "Farn" },
+            { members: ["spielen", "Spielzeug", "Spielfeld", "Mitspieler"], intruder: "Spiegel" },
+            { members: ["laufen", "Läufer", "Verlauf", "Eislauf"], intruder: "Laub" },
+            { members: ["lesen", "Leseratte", "Vorlesen", "beliebt"], intruder: "Leiter" },
+            { members: ["backen", "Bäcker", "Backofen", "Gebäck"], intruder: "Becken" },
+            { members: ["schreiben", "Schrift", "Schreibtisch", "Aufschrieb"], intruder: "Schrei" },
+            { members: ["tragen", "Träger", "Nachtrag", "tragbar"], intruder: "Traube" },
+            { members: ["schwimmen", "Schwimmer", "Mitschwimmen", "Schwimmbad"], intruder: "Schwarm" }
+        ];
+
+        let currentRound = 0;
+        let totalStars = 0;
+        let sessionData = [];
+        let canClick = true;
+        let roundFailed = false;
+
+        function startGame() {
+            currentRound = 0;
+            totalStars = 0;
+            // Zufällige Auswahl von 5 Familien
+            sessionData = [...families].sort(() => 0.5 - Math.random()).slice(0, 5);
+            document.getElementById('start-screen').classList.add('hidden');
+            loadRound();
+        }
+
+        function loadRound() {
+            canClick = true;
+            roundFailed = false;
+            const data = sessionData[currentRound];
+            document.getElementById('progress-bar').innerText = `Runde ${currentRound + 1} / 5`;
+            document.getElementById('feedback-area').innerText = "";
+            document.getElementById('feedback-area').style.color = "#334155";
+
+            // Wörter mischen (Mitglieder + Eindringling)
+            const allWords = [...data.members, data.intruder].sort(() => 0.5 - Math.random());
+            
+            const grid = document.getElementById('word-grid');
+            grid.innerHTML = '';
+
+            allWords.forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.innerText = word;
+                card.onclick = () => checkWord(word, card);
+                grid.appendChild(card);
+            });
+        }
+
+        function checkWord(selectedWord, cardElement) {
+            if (!canClick) return;
+            const data = sessionData[currentRound];
+            const feedback = document.getElementById('feedback-area');
+
+            if (selectedWord === data.intruder) {
+                // Richtig!
+                canClick = false;
+                cardElement.classList.add('selected-correct');
+                feedback.innerText = "Richtig! Das gehört nicht dazu. 🎉";
+                feedback.style.color = "var(--accent-green)";
+
+                if (!roundFailed) totalStars += 2;
+
+                setTimeout(() => {
+                    currentRound++;
+                    if (currentRound < 5) loadRound();
+                    else showFinalResults();
+                }, 1500);
+
+            } else {
+                // Falsch!
+                cardElement.classList.add('selected-error');
+                feedback.innerText = "Huch! Das gehört zur Familie. 🧐";
+                feedback.style.color = "var(--error-red)";
+                roundFailed = true;
+                
+                // Kurzes Schütteln oder Reset der Farbe
+                setTimeout(() => {
+                    cardElement.classList.remove('selected-error');
+                }, 800);
+            }
+        }
+
+        function showFinalResults() {
+            document.getElementById('win-screen').style.display = 'flex';
+            document.getElementById('stars-result').innerText = `⭐ ${totalStars}`;
+            document.getElementById('points-display').innerText = `Du hast ${totalStars} Sterne für deine Karte gesammelt!`;
+        }
+
+        function resetToMenu() {
+            if (window.parent && window.parent.addStars) window.parent.addStars(totalStars);
+            if (window.parent && window.parent.showMenu) window.parent.showMenu();
+        }
+    </script>
+</body>
+</html>
