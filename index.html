@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wort-Abenteuer: Kontrollzentrum</title>
     <style>
-        /* --- BASIS STYLING (Erhalten) --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f9ff;
@@ -62,7 +61,6 @@
             box-sizing: border-box;
         }
 
-        /* DASHBOARD LAYOUT */
         #menu-view {
             display: flex;
             width: 100%;
@@ -90,14 +88,13 @@
             flex-shrink: 0;
         }
 
-        /* --- KORRIGIERTES MAP STYLING --- */
         .map-wrapper {
             flex: 1;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: flex-start; 
-            overflow-y: auto;        /* Ermöglicht Scrollen der Karte */
+            overflow-y: auto; 
             padding: 10px;
             box-sizing: border-box;
         }
@@ -105,8 +102,8 @@
         #map-container {
             position: relative;
             width: 100%;
-            max-width: 600px; /* Begrenzt die Karte auf PC-Bildschirmen */
-            background-size: 100% 100%; /* Wichtig, damit Stationen passen */
+            max-width: 600px;
+            background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
             background-color: #e3d5b8;
@@ -116,14 +113,12 @@
             flex-shrink: 0;
         }
 
-        /* Sorgt für das 3:4 Verhältnis und hält Stationen fest */
         .map-ratio-box {
             width: 100%;
-            padding-top: 133.33%; /* 4/3 * 100 für das 3:4 Format */
+            padding-top: 133.33%; /* 4:3 Verhältnis */
             position: relative;
         }
 
-        /* Stationen punktgenau fixiert */
         .station {
             position: absolute;
             width: 14%;
@@ -134,7 +129,7 @@
             align-items: center;
             justify-content: center;
             z-index: 10;
-            transform: translate(-50%, -50%); /* Zentriert Station auf Koordinaten */
+            transform: translate(-50%, -50%);
             transition: transform 0.2s ease-in-out;
         }
 
@@ -147,7 +142,6 @@
             position: relative;
         }
 
-        /* NEU: Kleines Kisten-Emoji Styling */
         .mini-chest {
             position: absolute;
             top: -5px;
@@ -170,7 +164,6 @@
             transform: scale(1.2);
         }
 
-        /* NEU: Edelstein-Flug-Animation */
         .flying-gem {
             position: fixed;
             z-index: 5000;
@@ -190,7 +183,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* --- RESTLICHE ELEMENTE (Erhalten) --- */
         .controls-section {
             flex: 1;
             display: flex;
@@ -233,12 +225,6 @@
         .game-card:hover { background: #e8f5e9; }
         .hidden { display: none !important; }
 
-        /* NEUER RESET BUTTON STYLING */
-        .reset-container {
-            margin-top: 10px;
-            text-align: right;
-        }
-
         .reset-btn {
             background-color: #ffcdd2;
             color: #c62828;
@@ -248,10 +234,6 @@
             font-size: 0.7rem;
             cursor: pointer;
             transition: 0.3s;
-        }
-
-        .reset-btn:hover {
-            background-color: #ef9a9a;
         }
 
         #win-overlay {
@@ -276,18 +258,6 @@
         }
 
         .big-treasure { font-size: 5rem; margin: 20px 0; display: block; }
-
-        .next-btn {
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-        }
 
         #game-view {
             position: absolute;
@@ -317,13 +287,7 @@
             cursor: pointer;
             font-weight: bold;
             margin-bottom: 10px;
-        }
-
-        @media (max-width: 850px) {
-            body { overflow-y: auto; height: auto; }
-            main { flex-direction: column; height: auto; }
-            #menu-view { flex-direction: column; }
-            .map-section { height: 80vh; }
+            align-self: flex-start;
         }
     </style>
 </head>
@@ -342,8 +306,7 @@
             <div class="map-section">
                 <h2>Deine Schatzkarte - Schalte Stationen für 20 ⭐ frei. </h2>
                 <div class="map-wrapper">
-                    <div id="map-container">
-                        </div>
+                    <div id="map-container"></div>
                 </div>
             </div>
 
@@ -353,8 +316,7 @@
                     <div id="inventory-list">
                         <p style="font-size: 0.8rem; color: #888;">Schließe eine Karte ab...</p>
                     </div>
-                    <!-- RESET BUTTON INTEGRATION -->
-                    <div class="reset-container">
+                    <div class="reset-container" style="margin-top: 10px; text-align: right;">
                         <button class="reset-btn" onclick="resetGame()">♻️ Fortschritt zurücksetzen</button>
                     </div>
                 </div>
@@ -367,11 +329,11 @@
                     </button>
                     <button class="game-card" onclick="loadGame('spiel2.html')">
                         <strong>🧪 Wort-Labor</strong>
-                        <div style="font-size: 0.75rem; color: #666;">Level 2: Zerlege die Wörterr</div>
+                        <div style="font-size: 0.75rem; color: #666;">Level 2: Zerlege die Wörter</div>
                     </button>
                     <button class="game-card" onclick="loadGame('spiel3.html')">
                         <strong>🔍 Eindringlinge finden</strong>
-                        <div style="font-size: 0.75rem; color: #666;">Level 3: Untersuche die Wortfamilie</div>
+                        <div style="font-size: 0.75rem; color: #666;">Level 3: Wortfamilie untersuchen</div>
                     </button>
                     <button class="game-card" onclick="loadGame('spiel4.html')">
                         <strong>📖 Lese-Profi</strong>
@@ -393,16 +355,15 @@
             <p>Du hast alle Geheimnisse gelüftet. Hier ist dein Meisterschatz:</p>
             <span id="reward-emoji" class="big-treasure">💎</span>
             <p>Dieser Schatz wandert in deine Tasche!</p>
-            <button class="next-btn" onclick="startNextMap()">Nächste Karte entdecken ⛵</button>
+            <button class="next-btn" style="background: #4caf50; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer;" onclick="startNextMap()">Nächste Karte entdecken ⛵</button>
         </div>
     </div>
 
     <script>
         const mapImages = ['karte.png', 'karte2.png', 'karte3.png', 'karte4.png', 'karte5.png'];
         const masterTreasures = ["💎", "🏆", "👑", "🦄", "🐉", "🔱", "🧿", "✨", "🔥", "🌈"];
-        const gemEmojis = ["💎", "💎", "✨", "💎"]; // Für den Truhen-Effekt
+        const gemEmojis = ["💎", "✨", "💎"];
 
-        // Start-Konfiguration für einen Reset
         const initialGameState = {
             points: 50,
             mapLevel: 1,
@@ -421,10 +382,26 @@
             inventory: []
         };
 
-        // Laden des Spielstands oder Initialisierung
         let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || JSON.parse(JSON.stringify(initialGameState));
 
-        /* --- KORRIGIERTE RENDER-FUNKTION --- */
+        window.loadGame = function(url) {
+            const gameView = document.getElementById('game-view');
+            const menuView = document.getElementById('menu-view');
+            const gameFrame = document.getElementById('game-frame');
+
+            menuView.classList.add('hidden');
+            gameView.classList.remove('hidden');
+            gameFrame.src = url;
+            console.log("Lade Spiel: " + url);
+        };
+
+        window.showMenu = function() {
+            document.getElementById('menu-view').classList.remove('hidden');
+            document.getElementById('game-view').classList.add('hidden');
+            document.getElementById('game-frame').src = "about:blank";
+            renderMap();
+        };
+
         function renderMap() {
             const container = document.getElementById('map-container');
             if (!container) return;
@@ -432,12 +409,10 @@
             const imgIdx = (gameState.mapLevel - 1) % mapImages.length;
             container.style.backgroundImage = `url('${mapImages[imgIdx]}')`;
 
-            // HTML mit Ratio-Box erstellen, um Stationen festzuhalten
             container.innerHTML = `
                 <div class="map-ratio-box">
                     ${gameState.stations.map(s => `
-                        <div class="station ${s.status}" 
-                             style="top: ${s.top}; left: ${s.left};">
+                        <div class="station ${s.status}" data-station-id="${s.id}" style="top: ${s.top}; left: ${s.left};">
                             <div class="station-icon" onclick="handleStationClick(${s.id}, 'station')">
                                 ${s.status === 'opened' || s.status === 'unlocked' ? s.emoji : '🔒'}
                                 ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
@@ -448,14 +423,8 @@
                 </div>
             `;
         }
-        window.showMenu = function() {
-            document.getElementById('menu-view').classList.remove('hidden');
-            document.getElementById('game-view').classList.add('hidden');
-            document.getElementById('game-frame').src = "about:blank";
-            renderMap();
-        };
 
-        function handleStationClick(id, targetType) {
+        window.handleStationClick = function(id, targetType) {
             const s = gameState.stations.find(st => st.id === id);
             
             if (targetType === 'station' && s.status === 'locked') {
@@ -467,14 +436,16 @@
                     openChest(id);
                 }
             }
-        }
+        };
 
         function unlockStation(id) {
             if (gameState.points >= 20) {
                 gameState.points -= 20;
                 gameState.stations.find(st => st.id === id).status = 'unlocked';
                 saveAndRefresh();
-            } else { alert("Nicht genug Sterne! Spiele ein Abenteuer, um welche zu verdienen."); }
+            } else {
+                alert("Nicht genug Sterne! Spiele ein Abenteuer, um welche zu verdienen.");
+            }
         }
 
         function openChest(id) {
@@ -486,10 +457,8 @@
                     animateGemsToInventory(stationEl);
                 }
 
-                // Status sofort auf 'opened' setzen, damit die Kiste verschwindet
                 gameState.stations.find(st => st.id === id).status = 'opened';
                 
-                // WICHTIG: Erst nach der Flug-Animation landet der Diamant in der Tasche
                 setTimeout(() => {
                     gameState.inventory.push("💎"); 
                     saveAndRefresh();
@@ -532,58 +501,9 @@
             
             const invList = document.getElementById('inventory-list');
             if (gameState.inventory.length > 0) {
-                // Zeigt alle gesammelten Diamanten und Schätze an
                 invList.innerHTML = gameState.inventory.map(e => `<span class="item-slot">${e}</span>`).join('');
             } else {
-                invList.innerHTML = '<p style="font-size: 0.8rem; color: #888;">Noch keine Schätze...</p>';
-            }
-        }
-
-        function openChest(id) {
-            if (gameState.points >= 10) {
-                gameState.points -= 10;
-                
-                const stationEl = document.querySelector(`[data-station-id="${id}"] .mini-chest`);
-                if(stationEl) {
-                    animateGemsToInventory(stationEl);
-                }
-
-                gameState.stations.find(st => st.id === id).status = 'opened';
-                
-                // Belohnung nach Animation in die Tasche
-                setTimeout(() => {
-                    gameState.inventory.push("💎"); 
-                    saveAndRefresh();
-                    checkMapCompletion();
-                }, 850);
-            } else { 
-                alert("Nicht genug Sterne für diese Truhe!"); 
-            }
-        }
-
-        function animateGemsToInventory(sourceEl) {
-            const startRect = sourceEl.getBoundingClientRect();
-            const invEl = document.querySelector('.inventory h3');
-            const endRect = invEl.getBoundingClientRect();
-
-            for (let i = 0; i < 3; i++) {
-                setTimeout(() => {
-                    const gem = document.createElement('div');
-                    gem.className = 'flying-gem';
-                    gem.innerText = gemEmojis[i % gemEmojis.length];
-                    gem.style.left = startRect.left + 'px';
-                    gem.style.top = startRect.top + 'px';
-                    document.body.appendChild(gem);
-
-                    requestAnimationFrame(() => {
-                        gem.style.left = (endRect.left + 20) + 'px';
-                        gem.style.top = (endRect.top + 10) + 'px';
-                        gem.style.transform = 'scale(0.5) rotate(360deg)';
-                        gem.style.opacity = '0';
-                    });
-
-                    setTimeout(() => gem.remove(), 800);
-                }, i * 150);
+                invList.innerHTML = '<p style="font-size: 0.8rem; color: #888;">Schließe eine Karte ab...</p>';
             }
         }
 
@@ -596,20 +516,18 @@
             }
         }
 
-        function startNextMap() {
+        window.startNextMap = function() {
             gameState.mapLevel++;
             gameState.stations.forEach(st => st.status = 'locked');
             document.getElementById('win-overlay').classList.add('hidden');
             saveAndRefresh();
-        }
+        };
 
-        // RESET FUNKTION
         window.resetGame = function() {
-            if (confirm("Möchtest du wirklich dein gesamtes Abenteuer zurücksetzen? Alle Sterne, Schätze und freigeschalteten Orte gehen verloren!")) {
+            if (confirm("Wirklich alles zurücksetzen?")) {
                 gameState = JSON.parse(JSON.stringify(initialGameState));
                 localStorage.removeItem('wortAbenteuerState');
                 saveAndRefresh();
-                alert("Das Abenteuer wurde zurückgesetzt. Viel Spaß beim neuen Start!");
             }
         };
 
@@ -617,18 +535,6 @@
             localStorage.setItem('wortAbenteuerState', JSON.stringify(gameState));
             updateUI();
             renderMap();
-        }
-
-        function updateUI() {
-            document.getElementById('points').innerText = gameState.points;
-            document.getElementById('current-map-num').innerText = ((gameState.mapLevel - 1) % 5) + 1;
-            
-            const invList = document.getElementById('inventory-list');
-            if (gameState.inventory.length > 0) {
-                invList.innerHTML = gameState.inventory.map(e => `<span class="item-slot">${e}</span>`).join('');
-            } else {
-                invList.innerHTML = '<p style="font-size: 0.8rem; color: #888;">Schließe eine Karte ab...</p>';
-            }
         }
 
         window.addStars = function(amount) {
