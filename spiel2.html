@@ -18,41 +18,22 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg-color);
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            color: #334155;
-            touch-action: none;
+            display: flex; flex-direction: column; align-items: center;
+            height: 100vh; overflow: hidden; color: #334155; touch-action: none;
         }
 
         /* Startbildschirm */
         #start-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
-            z-index: 2000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        #start-screen::before {
-            content: "🧪";
-            position: absolute;
-            font-size: 40vw;
-            opacity: 0.1; 
-            z-index: -1;
-            pointer-events: none;
+            z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
         }
 
         .mode-btn {
             background: white; border: none; padding: 20px; margin: 10px; width: 100%; max-width: 450px;
             border-radius: 24px; font-size: 1.5rem; font-weight: 800; color: #1e293b;
-            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
-            transition: all 0.2s;
+            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transition: all 0.2s;
             border: 2px solid transparent;
         }
         .mode-btn:hover { transform: translateY(-5px); border-color: var(--accent-green); }
@@ -70,22 +51,17 @@
         }
 
         #word-display {
-            font-size: clamp(3rem, 12vw, 6rem);
-            font-weight: 900;
-            display: flex;
-            padding: 20px 40px;
-            background: white;
-            border-radius: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-            border: 8px solid #cbd5e1;
-            cursor: crosshair;
-            max-width: 95vw;
+            font-size: clamp(3rem, 12vw, 6rem); font-weight: 900; display: flex;
+            padding: 20px 40px; background: white; border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06); border: 8px solid #cbd5e1;
+            cursor: crosshair; max-width: 95vw;
         }
 
         .char-unit { 
             position: relative; padding: 0 2px; z-index: 5; 
             display: inline-block; border-radius: 12px; border: 5px solid transparent; 
         }
+        .char-unit.hidden-part { display: none; } /* Neu: Zum Ausblenden der Teile */
         .char-unit.error { border-color: #ef4444 !important; background: #fee2e2; }
 
         .marker {
@@ -98,8 +74,7 @@
 
         .tool-bar {
             display: flex; gap: 15px; padding: 15px 30px;
-            background: white; border-radius: 60px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: white; border-radius: 60px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         .marker-pen {
@@ -155,19 +130,19 @@
     <div id="start-screen">
         <h1 style="font-size: 3.5rem; color: #0f172a; margin: 0;">Wort-Labor 🧪</h1>
         <p style="font-size: 1.2rem; color: #475569; margin-bottom: 30px;">Finde die Bausteine der Wörter!</p>
-        <button class="mode-btn" onclick="startGame(1)">🚀 STUFE 1<span>Nur Wortstamm finden (1 ⭐/Wort)</span></button>
-        <button class="mode-btn" onclick="startGame(2)">🧪 STUFE 2<span>Alle Teile markieren (2 ⭐/Wort)</span></button>
-        <button class="mode-btn" onclick="startGame(3)">🧠 STUFE 3<span>Profi-Analyse (3 ⭐/Wort)</span></button>
+        <button class="mode-btn" onclick="startGame(1)">🚀 STUFE 1<span>Nur Wortstamm finden (1 ⭐)</span></button>
+        <button class="mode-btn" onclick="startGame(2)">🧪 STUFE 2<span>Alle Teile markieren (2 ⭐)</span></button>
+        <button class="mode-btn" onclick="startGame(3)">🧠 STUFE 3<span>Profi-Analyse (3 ⭐)</span></button>
     </div>
 
     <div class="lab-container">
         <div id="progress-bar">Wort 1 / 5</div>
-        <div id="feedback-message" style="color: #e11d48; font-weight: 800;"></div>
+        <div id="feedback-message" style="color: #e11d48; font-weight: 800; min-height: 1.5em;"></div>
         
         <div id="word-display"></div>
 
         <div id="variation-box">
-            <p style="font-weight: 800; color: #166534; font-size: 1.4rem;">Welche Silben passen noch vorne dran?</p>
+            <p style="font-weight: 800; color: #166534; font-size: 1.4rem;">Welche Bausteine passen noch zum Stamm?</p>
             <div id="variation-list" class="variation-list"></div>
         </div>
 
@@ -190,10 +165,10 @@
     </div>
 
     <div id="win-screen">
-        <h1 style="font-size: 3rem; color: #166534;">Ergebnis</h1>
+        <h1 style="font-size: 3rem; color: #166534;">Laborbericht</h1>
         <div id="stars-result" style="font-size: 5rem; color: #eab308; margin-bottom: 20px;"></div>
         <p id="points-display" style="font-size: 1.8rem; font-weight: 800; color: #475569;"></p>
-        <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Belohnung abholen</button>
+        <button class="mode-btn" style="background: var(--accent-green); color: white;" onclick="resetToMenu()">Ergebnisse speichern</button>
     </div>
 
     <script>
@@ -214,15 +189,11 @@
         let charMarks = [];
         let variationsSelected = [];
         let sessionWords = [];
-        
-        // PUNKTE-LOGIK Variablen
-        let currentWordFailed = false; // Hat der Spieler in diesem Wort schon einen Fehler gemacht?
-        let checkCountForWord = 0;     // Wie oft wurde "Prüfen" für das aktuelle Wort gedrückt?
+        let currentWordFailed = false;
 
         function startGame(level) {
             currentLevel = parseInt(level);
-            roundStep = 0; 
-            totalStars = 0;
+            roundStep = 0; totalStars = 0;
             sessionWords = [...wordPool].sort(() => 0.5 - Math.random()).slice(0, 5);
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('pen-prefix').classList.toggle('hidden', currentLevel === 1);
@@ -233,8 +204,6 @@
         function loadWord() {
             currentWordData = sessionWords[roundStep];
             currentWordFailed = false;
-            checkCountForWord = 0; // Reset für neues Wort
-            
             document.getElementById('progress-bar').innerText = `Wort ${roundStep + 1} / 5`;
             document.getElementById('feedback-message').innerText = "";
             const display = document.getElementById('word-display');
@@ -242,6 +211,7 @@
             charMarks = new Array(currentWordData.word.length).fill(null);
             variationsSelected = [];
             document.getElementById('variation-box').style.display = 'none';
+            document.getElementById('tool-bar').style.display = 'flex';
             document.getElementById('check-btn').innerText = "Prüfen 🔍";
 
             currentWordData.word.split('').forEach((char, index) => {
@@ -296,57 +266,51 @@
             const msg = document.getElementById('feedback-message');
             let errors = 0;
 
-            // Markierungen validieren
-            charMarks.forEach((mark, i) => {
-                let expected = null;
-                if (i < preLen) expected = (currentLevel >= 2) ? 'prefix' : null;
-                else if (i < preLen + stemLen) expected = 'stem';
-                else expected = (currentLevel >= 2) ? 'suffix' : null;
-
-                const charUnit = document.getElementById(`char-${i}`);
-                if (mark !== expected) {
-                    charUnit.classList.add('error');
-                    errors++;
-                } else {
-                    charUnit.classList.remove('error');
-                }
-            });
-
-            // Varianten validieren (nur Level 3 Phase 2)
-            let altErrors = 0;
             const isPhaseTwo = document.getElementById('variation-box').style.display !== 'none';
-            if (currentLevel === 3 && isPhaseTwo) {
+
+            if (!isPhaseTwo) {
+                charMarks.forEach((mark, i) => {
+                    let expected = null;
+                    if (i < preLen) expected = (currentLevel >= 2) ? 'prefix' : null;
+                    else if (i < preLen + stemLen) expected = 'stem';
+                    else expected = (currentLevel >= 2) ? 'suffix' : null;
+
+                    const charUnit = document.getElementById(`char-${i}`);
+                    if (mark !== expected) {
+                        charUnit.classList.add('error');
+                        errors++;
+                    }
+                });
+
+                if (errors > 0) {
+                    msg.innerText = "Da stimmt was noch nicht! 🧐";
+                    currentWordFailed = true;
+                    return;
+                }
+
+                if (currentLevel === 3) {
+                    showVariations();
+                    return;
+                }
+            } else {
+                let altErrors = 0;
                 data.alternates.forEach((alt, idx) => {
                     const btn = document.querySelectorAll('.variation-btn')[idx];
                     const isSelected = variationsSelected.includes(idx);
                     if ((isSelected && !alt.ok) || (!isSelected && alt.ok)) {
                         btn.classList.add('error');
                         altErrors++;
-                    } else {
-                        btn.classList.remove('error');
                     }
                 });
+
+                if (altErrors > 0) {
+                    msg.innerText = "Nicht alle Bausteine passen! 🔍";
+                    currentWordFailed = true;
+                    return;
+                }
             }
 
-            // --- PUNKTE-FREEZE LOGIK ---
-            // Wenn Fehler gemacht wurden, wird das Wort als "Failed" markiert (keine Sterne möglich)
-            if (errors > 0 || altErrors > 0) {
-                msg.innerText = "Da stimmt was noch nicht! 🧐";
-                currentWordFailed = true;
-                return;
-            }
-
-            // Wenn Level 3 und wir sind erst nach Phase 1 (Markieren)
-            if (currentLevel === 3 && !isPhaseTwo) {
-                showVariations();
-                return;
-            }
-
-            // Wenn alles korrekt ist und wir das Ende des Wortes erreicht haben:
-            // Wir vergeben Sterne nur, wenn currentWordFailed noch false ist
-            if (!currentWordFailed) {
-                totalStars += currentLevel; // 1, 2 oder 3 Sterne je nach Level
-            }
+            if (!currentWordFailed) totalStars += currentLevel;
 
             roundStep++;
             if(roundStep < 5) loadWord();
@@ -356,8 +320,25 @@
         function showVariations() {
             const box = document.getElementById('variation-box');
             const list = document.getElementById('variation-list');
+            const toolbar = document.getElementById('tool-bar');
+            
+            // Phase 2 Setup
             box.style.display = 'block';
+            toolbar.style.display = 'none'; // Stifte verstecken
             list.innerHTML = '';
+            
+            // DIE NEUE LOGIK: Prefix und Suffix ausblenden
+            const preLen = currentWordData.prefix.length;
+            const stemLen = currentWordData.stem.length;
+            
+            currentWordData.word.split('').forEach((_, index) => {
+                const charUnit = document.getElementById(`char-${index}`);
+                // Wenn Index vor dem Stamm oder nach dem Stamm liegt -> Ausblenden
+                if (index < preLen || index >= (preLen + stemLen)) {
+                    charUnit.classList.add('hidden-part');
+                }
+            });
+
             currentWordData.alternates.forEach((alt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'variation-btn';
@@ -376,23 +357,13 @@
         function showFinalResults() {
             const winScreen = document.getElementById('win-screen');
             winScreen.style.display = 'flex';
-            
-            const maxPossible = 5 * currentLevel;
-            document.getElementById('stars-result').innerText = `⭐ ${totalStars} / ${maxPossible}`;
-            document.getElementById('points-display').innerText = `Du hast ${totalStars} Sterne für deine Karte gesammelt!`;
+            document.getElementById('stars-result').innerText = `⭐ ${totalStars}`;
+            document.getElementById('points-display').innerText = `Fantastisch! Du hast ${totalStars} Sterne verdient!`;
         }
 
         function resetToMenu() {
-            if (window.parent && window.parent.addStars) {
-                // Wir übergeben die totalStars direkt an das Hauptsystem
-                window.parent.addStars(totalStars); 
-            }
-
-            setTimeout(() => {
-                if (window.parent && window.parent.showMenu) {
-                    window.parent.showMenu();
-                }
-            }, 100);
+            if (window.parent && window.parent.addStars) window.parent.addStars(totalStars);
+            if (window.parent && window.parent.showMenu) window.parent.showMenu();
         }
     </script>
 </body>
