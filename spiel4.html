@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>Wortarten-Regen Profi</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --accent-green: #63d471;
+            --accent-blue: #a78bfa;
+            --error-red: #fb7185;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --border-default: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            display: flex; flex-direction: column; align-items: center;
+            height: 100vh; overflow: hidden; color: var(--text-main); touch-action: none;
+        }
+
+        /* Screens */
+        .screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+            z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Configuration Sections */
+        .config-section {
+            background: white; padding: 20px; border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; width: 100%; max-width: 600px;
+        }
+
+        .checkbox-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+        .chip {
+            padding: 12px 18px; border: 2px solid var(--border-default); border-radius: 15px;
+            cursor: pointer; transition: all 0.2s; font-weight: bold; background: white;
+            font-size: 0.95rem;
+        }
+        .chip.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); transform: scale(1.05); }
+
+        .mode-btn {
+            background: var(--accent-green); border: none; padding: 20px; width: 100%; max-width: 300px;
+            border-radius: 20px; font-size: 1.4rem; font-weight: 800; color: white;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(99, 212, 113, 0.3); transition: transform 0.2s;
+        }
+        .mode-btn:hover { transform: scale(1.05); }
+
+        /* Game UI */
+        #game-area {
+            position: relative; width: 100%; height: 100%; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        #ui-layer {
+            display: flex; justify-content: space-between; width: 100%; padding: 15px; 
+            box-sizing: border-box; z-index: 100; pointer-events: none;
+        }
+
+        .stats-badge {
+            background: white; padding: 10px 25px; border-radius: 15px;
+            font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.05); pointer-events: auto;
+            font-size: 1.2rem;
+        }
+
+        /* Objects */
+        .falling-word {
+            position: absolute; background: white; padding: 12px 20px;
+            border: 3px solid var(--accent-blue); border-radius: 15px;
+            font-weight: 900; font-size: 1.3rem; cursor: grab;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); user-select: none;
+            touch-action: none; z-index: 50; white-space: nowrap;
+        }
+        .falling-word.dragging { opacity: 0.9; transform: scale(1.1); cursor: grabbing; z-index: 1000; border-color: var(--accent-green); }
+
+        #baskets-container {
+            position: absolute; bottom: 0; width: 100%; display: flex;
+            justify-content: center; gap: 10px; padding: 10px; box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .basket {
+            flex: 1; max-width: 180px; height: 100px; background: white; 
+            border: 4px solid var(--border-default); border-radius: 20px; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1rem; color: #64748b;
+            transition: all 0.2s; position: relative; text-align: center;
+        }
+        .basket.highlight { transform: scale(1.05) translateY(-5px); border-color: var(--accent-green); background: #f0fdf4; }
+
+        /* Modals */
+        #feedback-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 30px; border-radius: 25px; border: 6px solid var(--error-red);
+            z-index: 3000; text-align: center; width: 85%; max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        #admin-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.2; font-size: 0.7rem; z-index: 4000; border: none; background: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen">
+        <h1 style="font-size: 3rem; margin: 0; color: #0f172a;">Wortarten-Regen 🌧️</h1>
+        <p style="font-size: 1.2rem; color: #64748b;">Konfiguriere deine Trainings-Runde:</p>
+        
+        <div class="config-section">
+            <strong style="display: block; margin-bottom: 10px;">Welche Wortarten sollen vorkommen?</strong>
+            <div class="checkbox-group" id="type-chips">
+                <div class="chip active" data-type="Nomen">Nomen</div>
+                <div class="chip active" data-type="Verb">Verben</div>
+                <div class="chip active" data-type="Adjektiv">Adjektive</div>
+                <div class="chip" data-type="Präposition">Präpositionen</div>
+                <div class="chip" data-type="Pronomen">Pronomen</div>
+                <div class="chip" data-type="Artikel">Artikel</div>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <strong style="display: block; margin-bottom: 10px;">Geschwindigkeit (1 Min. Zeitlimit)</strong>
+            <div class="checkbox-group" id="speed-chips">
+                <div class="chip active" data-speed="slow">Langsam (1 Wort)</div>
+                <div class="chip" data-speed="medium">Mittel (2 Wörter)</div>
+                <div class="chip" data-speed="fast">Schnell (3 Wörter)</div>
+            </div>
+        </div>
+
+        <button class="mode-btn" onclick="game.init()">Spiel starten! 🚀</button>
+    </div>
+
+    <!-- GAME AREA -->
+    <div id="game-area" class="hidden">
+        <div id="ui-layer">
+            <div class="stats-badge" id="timer-display">60s</div>
+            <div class="stats-badge" id="points-display">Sterne: 0</div>
+        </div>
+        <div id="baskets-container"></div>
+    </div>
+
+    <!-- FEEDBACK MODAL (ERROR) -->
+    <div id="feedback-modal" class="hidden">
+        <h2 style="color: var(--error-red); font-size: 2rem; margin-top: 0;">Oje! 🧐</h2>
+        <div id="error-content" style="font-size: 1.3rem; line-height: 1.6; margin-bottom: 25px;"></div>
+        <button class="mode-btn" style="background: var(--text-main); width: 100%;" onclick="game.resume()">Ich hab's verstanden!</button>
+    </div>
+
+    <!-- WIN SCREEN -->
+    <div id="win-screen" class="screen hidden">
+        <h1 style="font-size: 3rem;">Hervorragend! 🏆</h1>
+        <div id="final-stars" style="font-size: 5rem; color: #fbbf24; margin: 20px; font-weight: 900;">⭐ 0</div>
+        <p id="final-msg" style="font-size: 1.5rem; color: #64748b; margin-bottom: 30px;"></p>
+        <button class="mode-btn" onclick="game.saveAndExit()">Sterne auf Karte sichern</button>
+    </div>
+
+    <button id="admin-btn" onclick="game.openAdmin()">⚙️ Admin</button>
+
+    <script>
+        const INITIAL_DATABASE = [
+            { text: "Häuser", type: "Nomen", base: "das Haus" },
+            { text: "laufen", type: "Verb", base: "laufen" },
+            { text: "schnell", type: "Adjektiv", base: "schnell" },
+            { text: "auf", type: "Präposition", base: "auf" },
+            { text: "ich", type: "Pronomen", base: "ich (Personalpronomen)" },
+            { text: "der", type: "Artikel", base: "der (bestimmter Artikel)" },
+            { text: "mein", type: "Pronomen", base: "mein (Possessivpronomen)" },
+            { text: "ein", type: "Artikel", base: "ein (unbestimmter Artikel)" },
+            { text: "unter", type: "Präposition", base: "unter" },
+            { text: "groß", type: "Adjektiv", base: "groß" },
+            { text: "singen", type: "Verb", base: "singen" },
+            { text: "Tisch", type: "Nomen", base: "der Tisch" }
+        ];
+
+        class WordGame {
+            constructor() {
+                this.db = JSON.parse(localStorage.getItem('regen_db_v2')) || INITIAL_DATABASE;
+                this.stars = 0;
+                this.timeLeft = 60;
+                this.activeTypes = [];
+                this.speedMode = 'slow';
+                this.activeWords = [];
+                this.gameRunning = false;
+                this.timerInterval = null;
+                
+                this.setupChips();
+            }
+
+            setupChips() {
+                document.querySelectorAll('.chip').forEach(chip => {
+                    chip.onclick = (e) => {
+                        const isSpeed = e.target.parentElement.id === 'speed-chips';
+                        if(isSpeed) {
+                            e.target.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                            e.target.classList.add('active');
+                        } else {
+                            e.target.classList.toggle('active');
+                        }
+                    };
+                });
+            }
+
+            init() {
+                this.activeTypes = Array.from(document.querySelectorAll('#type-chips .chip.active')).map(c => c.dataset.type);
+                this.speedMode = document.querySelector('#speed-chips .chip.active').dataset.speed;
+
+                if(this.activeTypes.length === 0) return alert("Bitte wähle mindestens eine Wortart aus!");
+
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('game-area').classList.remove('hidden');
+                
+                this.renderBaskets();
+                this.startGame();
+            }
+
+            renderBaskets() {
+                const container = document.getElementById('baskets-container');
+                container.innerHTML = '';
+                this.activeTypes.forEach(type => {
+                    const b = document.createElement('div');
+                    b.className = 'basket';
+                    b.innerHTML = `<span>${type}</span>`;
+                    b.dataset.type = type;
+                    container.appendChild(b);
+                });
+            }
+
+            startGame() {
+                this.gameRunning = true;
+                this.timeLeft = 60;
+                this.updateUI();
+                
+                this.timerInterval = setInterval(() => {
+                    if(!this.gameRunning) return;
+                    this.timeLeft--;
+                    this.updateUI();
+                    if(this.timeLeft <= 0) this.endGame();
+                }, 1000);
+
+                this.gameLoop();
+            }
+
+            updateUI() {
+                document.getElementById('timer-display').innerText = `${this.timeLeft}s`;
+                document.getElementById('points-display').innerText = `Sterne: ${this.stars}`;
+            }
+
+            gameLoop() {
+                if(!this.gameRunning) return;
+
+                const limit = this.speedMode === 'slow' ? 1 : (this.speedMode === 'medium' ? 2 : 3);
+                
+                if(this.activeWords.length < limit) {
+                    this.spawn();
+                }
+
+                this.activeWords.forEach((w, idx) => {
+                    if(!w.isDragging) {
+                        let speed = this.speedMode === 'fast' ? 3.5 : (this.speedMode === 'medium' ? 2.5 : 1.8);
+                        w.y += speed;
+                        w.el.style.top = w.y + 'px';
+
+                        // Check if missed
+                        if(w.y > window.innerHeight - 120) {
+                            this.removeWord(idx);
+                        }
+                    }
+                });
+
+                requestAnimationFrame(() => this.gameLoop());
+            }
+
+            spawn() {
+                const pool = this.db.filter(item => this.activeTypes.includes(item.type));
+                if(pool.length === 0) return;
+                
+                const data = pool[Math.floor(Math.random() * pool.length)];
+                const el = document.createElement('div');
+                el.className = 'falling-word';
+                el.innerText = data.text;
+                document.getElementById('game-area').appendChild(el);
+
+                const obj = {
+                    el, data,
+                    x: Math.random() * (window.innerWidth - 180) + 20,
+                    y: -60,
+                    isDragging: false
+                };
+
+                el.style.left = obj.x + 'px';
+                this.bindDrag(obj);
+                this.activeWords.push(obj);
+            }
+
+            bindDrag(w) {
+                const onStart = (e) => {
+                    if(!this.gameRunning) return;
+                    w.isDragging = true;
+                    w.el.classList.add('dragging');
+                };
+
+                const onMove = (e) => {
+                    if(!w.isDragging) return;
+                    const moveX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const moveY = e.touches ? e.touches[0].clientY : e.clientY;
+                    w.el.style.left = (moveX - w.el.offsetWidth / 2) + 'px';
+                    w.el.style.top = (moveY - w.el.offsetHeight / 2) + 'px';
+                    
+                    // Visual basket highlight
+                    this.highlightBasket(moveX, moveY);
+                };
+
+                const onEnd = (e) => {
+                    if(!w.isDragging) return;
+                    w.isDragging = false;
+                    w.el.classList.remove('dragging');
+                    this.checkDrop(w);
+                };
+
+                w.el.addEventListener('mousedown', onStart);
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onEnd);
+
+                w.el.addEventListener('touchstart', onStart, {passive: false});
+                window.addEventListener('touchmove', onMove, {passive: false});
+                window.addEventListener('touchend', onEnd);
+            }
+
+            highlightBasket(x, y) {
+                document.querySelectorAll('.basket').forEach(b => {
+                    const r = b.getBoundingClientRect();
+                    if(x > r.left && x < r.right && y > r.top && y < r.bottom) b.classList.add('highlight');
+                    else b.classList.remove('highlight');
+                });
+            }
+
+            checkDrop(w) {
+                const rect = w.el.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                let foundBasket = null;
+                document.querySelectorAll('.basket').forEach(b => {
+                    const r = b.getBoundingClientRect();
+                    if(centerX > r.left && centerX < r.right && centerY > r.top && centerY < r.bottom) {
+                        foundBasket = b;
+                    }
+                    b.classList.remove('highlight');
+                });
+
+                if(foundBasket) {
+                    if(foundBasket.dataset.type === w.data.type) {
+                        this.stars += (this.speedMode === 'fast' ? 3 : (this.speedMode === 'medium' ? 2 : 1));
+                        this.activeWords = this.activeWords.filter(item => item !== w);
+                        w.el.remove();
+                        this.updateUI();
+                    } else {
+                        this.triggerError(w, foundBasket.dataset.type);
+                    }
+                } else {
+                    w.y = rect.top; // Fall from here
+                }
+            }
+
+            triggerError(w, chosenType) {
+                this.gameRunning = false;
+                clearInterval(this.timerInterval);
+                const modal = document.getElementById('feedback-modal');
+                const content = document.getElementById('error-content');
+                
+                content.innerHTML = `
+                    Das Wort <b>"${w.data.text}"</b> ist kein ${chosenType}.<br><br>
+                    Korrekt ist: <b style="color:var(--accent-green)">${w.data.type}</b><br>
+                    <small>(Grundform: ${w.data.base})</small>
+                `;
+                modal.classList.remove('hidden');
+            }
+
+            resume() {
+                document.getElementById('feedback-modal').classList.add('hidden');
+                this.activeWords.forEach(w => w.el.remove());
+                this.activeWords = [];
+                this.startGame();
+            }
+
+            removeWord(idx) {
+                this.activeWords[idx].el.remove();
+                this.activeWords.splice(idx, 1);
+            }
+
+            endGame() {
+                this.gameRunning = false;
+                clearInterval(this.timerInterval);
+                document.getElementById('game-area').classList.add('hidden');
+                document.getElementById('win-screen').classList.remove('hidden');
+                document.getElementById('final-stars').innerText = `⭐ ${this.stars}`;
+                document.getElementById('final-msg').innerText = this.stars > 20 ? "Wow! Du bist ein Wortarten-Profi!" : "Gut gemacht! Übung macht den Meister.";
+            }
+
+            saveAndExit() {
+                if (window.parent && window.parent.addStars) window.parent.addStars(this.stars);
+                location.reload();
+            }
+
+            openAdmin() {
+                const pass = prompt("Admin Passwort:");
+                if(pass === "1234") {
+                    const input = prompt("Bulk-Upload (Format: Wort,Wortart,Grundform):");
+                    if(input) {
+                        const lines = input.split('\n');
+                        const newWords = [];
+                        lines.forEach(line => {
+                            const parts = line.split(',');
+                            if(parts.length === 3) {
+                                const text = parts[0].trim();
+                                if(!this.db.find(w => w.text === text)) {
+                                    newWords.push({ text, type: parts[1].trim(), base: parts[2].trim() });
+                                }
+                            }
+                        });
+                        this.db = [...this.db, ...newWords];
+                        localStorage.setItem('regen_db_v2', JSON.stringify(this.db));
+                        alert(`${newWords.length} Wörter wurden erfolgreich hinzugefügt!`);
+                    }
+                }
+            }
+        }
+
+        const game = new WordGame();
+    </script>
+</body>
+</html>
