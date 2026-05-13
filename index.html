@@ -4,125 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wort-Abenteuer: Kontrollzentrum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #2E7D32;
+            --accent: #FFD700;
+            --bg-soft: #f0f9ff;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f9ff;
+            font-family: 'Fredoka', sans-serif;
+            background-color: var(--bg-soft);
             color: #333;
             margin: 0;
-            padding: 0;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            overflow: hidden; /* Verhindert das Scrollen der gesamten Seite */
         }
 
-        header {
-            background-color: #4caf50;
-            color: white;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 60px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 100;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .header-stats {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        #map-progress-display {
-            font-size: 0.9rem;
-            background: #2e7d32;
-            padding: 5px 12px;
-            border-radius: 15px;
-        }
-
-        #score-display {
-            font-size: 1.1rem;
-            font-weight: bold;
-            background: #ffd700;
-            padding: 5px 15px;
-            border-radius: 20px;
-            color: #2e7d32;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            padding: 15px;
-            gap: 20px;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        #menu-view {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            gap: 20px;
-        }
-
-        .map-section {
+        .map-viewport {
             flex: 1.5;
             display: flex;
             flex-direction: column;
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            min-width: 0;
             height: 100%;
-            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
         }
 
-        .map-section h2 {
-            margin: 0 0 10px 0;
-            font-size: 1.2rem;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
+        /* Dieser Container sorgt dafür, dass die Karte immer komplett sichtbar bleibt */
         .map-wrapper {
-            flex: 1;
+            position: relative;
             width: 100%;
+            height: 100%;
             display: flex;
             justify-content: center;
-            align-items: flex-start; 
-            overflow-y: auto; 
+            align-items: center;
             padding: 10px;
-            box-sizing: border-box;
         }
 
-        #map-container {
+        /* Der map-container behält das Seitenverhältnis deiner Karte (3:4) bei */
+        .map-container-style {
             position: relative;
-            width: 100%;
-            max-width: 600px;
+            aspect-ratio: 3 / 4;
+            max-width: 100%;
+            max-height: 100%;
+            background-color: #e3d5b8;
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            background-position: center;
-            background-color: #e3d5b8;
-            border: 5px solid #8d6e63;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            flex-shrink: 0;
-        }
-
-        .map-ratio-box {
-            width: 100%;
-            padding-top: 133.33%; 
-            position: relative;
+            border: 6px solid white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
         .station {
             position: absolute;
-            width: 14%;
-            height: 10%;
+            width: 12%;
+            height: 9%;
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -130,252 +78,176 @@
             justify-content: center;
             z-index: 10;
             transform: translate(-50%, -50%);
-            transition: transform 0.2s ease-in-out;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .station:hover { 
-            transform: translate(-50%, -50%) scale(1.15); 
-        }
-
-        .station-icon { 
-            font-size: 2rem; 
-            position: relative;
-        }
+        .station:hover { transform: translate(-50%, -50%) scale(1.15); }
 
         .mini-chest {
             position: absolute;
-            top: -5px;
-            right: -15px;
+            top: -12px;
+            right: -12px;
             font-size: 1.2rem;
-            cursor: pointer;
             background: white;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-            z-index: 20;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .item-slot {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 3px;
         }
 
         .flying-gem {
             position: fixed;
             z-index: 5000;
             pointer-events: none;
-            font-size: 1.5rem;
+            font-size: 2rem;
             transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .station-label {
-            font-size: 0.65rem;
-            font-weight: bold;
-            background: rgba(255,255,255,0.95);
-            padding: 2px 5px;
-            border-radius: 4px;
-            white-space: nowrap;
-            margin-top: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        .game-card-modern {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
         }
-
-        .controls-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .inventory, .game-selection {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            border: 2px solid #4caf50;
-            flex-shrink: 0;
-        }
-
-        .item-slot {
-            font-size: 1.4rem; /* Kleiner als vorher (1.8rem) */
-            background: #f1f8e9;
-            padding: 8px 12px;
-            border-radius: 12px;
-            border: 1px solid #c8e6c9;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin: 4px;
-            position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .item-count {
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: #2e7d32;
-            background: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            border: 1px solid #c8e6c9;
-        }
-
-        .game-card {
-            width: 100%;
-            background: #fff;
-            border: 2px solid #4caf50;
-            border-radius: 10px;
-            padding: 12px;
-            cursor: pointer;
-            margin-bottom: 8px;
-            text-align: left;
-            transition: 0.2s;
-        }
-
-        .game-card:hover { background: #e8f5e9; }
-        .hidden { display: none !important; }
-
-        .reset-btn {
-            background-color: #ffcdd2;
-            color: #c62828;
-            border: 1px solid #ef9a9a;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        #win-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-        }
-
-        .win-content {
-            background: white;
-            color: #333;
-            padding: 40px;
-            border-radius: 25px;
-            max-width: 400px;
-            box-shadow: 0 0 30px #ffd700;
-        }
-
-        .big-treasure { font-size: 5rem; margin: 20px 0; display: block; }
-
-        #game-view {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #f0f9ff;
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        #game-frame {
-            flex: 1;
-            border: none;
-            width: 100%;
-            background: white;
-            border-radius: 15px;
-        }
-
-        .back-btn {
-            background: #e91e63;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 10px;
-            align-self: flex-start;
+        .game-card-modern:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+            background-color: #f0fdf4;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Wort-Abenteuer</h1>
-        <div class="header-stats">
-            <div id="map-progress-display">Karte <span id="current-map-num">1</span> / 5</div>
-            <div id="score-display">Sterne: <span id="points">0</span> ⭐</div>
+    <header class="bg-white px-6 py-3 flex justify-between items-center shadow-sm z-50">
+        <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-400">
+            🌳 Wort-Abenteuer
+        </h1>
+        <div class="flex gap-4 items-center">
+            <div class="bg-green-100 text-green-700 px-4 py-1.5 rounded-full font-bold text-xs">
+                Karte <span id="current-map-num">1</span> / 5
+            </div>
+            <div class="bg-yellow-400 text-yellow-900 px-5 py-1.5 rounded-full font-bold shadow-sm text-sm">
+                <span id="points">0</span> ⭐
+            </div>
         </div>
     </header>
 
-    <main>
-        <section id="menu-view">
-            <div class="map-section">
-                <h2>Deine Schatzkarte - Schalte Stationen für 20 ⭐ frei. </h2>
-                <div class="map-wrapper">
-                    <div id="map-container"></div>
+    <main class="flex-1 flex p-4 gap-4 overflow-hidden">
+        <!-- LINKES PANEL: Die Karte (Immer im Viewport) -->
+        <section class="map-viewport glass-card p-4">
+            <h2 class="text-sm font-semibold mb-2 text-slate-500 text-center uppercase tracking-wider">Geheimnisvolle Insel</h2>
+            <div class="map-wrapper">
+                <!-- Die Bilder werden aus deinem GitHub-Ordner geladen -->
+                <div id="map-container" class="map-container-style">
+                    <!-- Stationen werden hier via JS gerendert -->
+                </div>
+            </div>
+        </section>
+
+        <!-- RECHTES PANEL: Inventar & Spiele (Scrollbar falls nötig) -->
+        <section class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+            <!-- Inventar -->
+            <div class="glass-card p-5 border-l-4 border-green-500">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2">🎒 Deine Tasche</h3>
+                    <button onclick="resetGame()" class="text-[10px] uppercase font-bold text-red-400 hover:text-red-600">Reset ♻️</button>
+                </div>
+                <div id="inventory-list" class="flex flex-wrap gap-2 min-h-[50px]">
+                    <p class="text-slate-400 text-xs italic">Noch keine Schätze gefunden...</p>
                 </div>
             </div>
 
-            <div class="controls-section">
-                <div class="inventory">
-                    <h3>Deine Tasche (Meister-Schätze)</h3>
-                    <div id="inventory-list">
-                        <p style="font-size: 0.8rem; color: #888;">Schließe eine Karte ab...</p>
-                    </div>
-                    <div class="reset-container" style="margin-top: 10px; text-align: right;">
-                        <button class="reset-btn" onclick="resetGame()">♻️ Fortschritt zurücksetzen</button>
-                    </div>
-                </div>
-
-                <div class="game-selection">
-                    <h3>Abenteuer wählen</h3>
-                    <button class="game-card" onclick="loadGame('spiel1.html')">
-                        <strong>🌳 Wortstamm-Baum</strong>
-                        <div style="font-size: 0.75rem; color: #666;">Level 1: Finde den Kern</div>
+            <!-- Spiel-Auswahl -->
+            <div class="glass-card p-5">
+                <h3 class="font-bold text-slate-800 mb-3 text-sm">Bereit für ein Abenteuer?</h3>
+                <div class="space-y-2">
+                    <!-- Button 1 -->
+                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel1.html')">
+                        <div class="text-xl bg-green-50 w-10 h-10 flex items-center justify-center rounded-lg">🌳</div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Wortstamm-Baum</div>
+                            <div class="text-[10px] text-slate-500">Level 1: Finde den Kern</div>
+                        </div>
                     </button>
-                    <button class="game-card" onclick="loadGame('spiel2.html')">
-                        <strong>🧪 Wort-Labor</strong>
-                        <div style="font-size: 0.75rem; color: #666;">Level 2: Zerlege die Wörter</div>
+                    <!-- Button 2 -->
+                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel2.html')">
+                        <div class="text-xl bg-orange-50 w-10 h-10 flex items-center justify-center rounded-lg">🧪</div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Wort-Labor</div>
+                            <div class="text-[10px] text-slate-500">Level 2: Zerlege die Wörter</div>
+                        </div>
                     </button>
-                    <button class="game-card" onclick="loadGame('spiel3.html')">
-                        <strong>🔍 Eindringlinge finden</strong>
-                        <div style="font-size: 0.75rem; color: #666;">Level 3: Wortfamilie untersuchen</div>
+                    <!-- Button 3 -->
+                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel3.html')">
+                        <div class="text-xl bg-pink-50 w-10 h-10 flex items-center justify-center rounded-lg">🔍</div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Eindringlinge</div>
+                            <div class="text-[10px] text-slate-500">Level 3: Wortfamilie</div>
+                        </div>
                     </button>
-                    <button class="game-card" onclick="loadGame('spiel4.html')">
-                        <strong>📖 Lese-Profi</strong>
-                        <div style="font-size: 0.75rem; color: #666;">Level 4: Verstehe den Text</div>
+                    <!-- Button 4 -->
+                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel4.html')">
+                        <div class="text-xl bg-blue-50 w-10 h-10 flex items-center justify-center rounded-lg">📖</div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Lese-Profi</div>
+                            <div class="text-[10px] text-slate-500">Level 4: Text-Check</div>
+                        </div>
                     </button>
-                     <button class="game-card" onclick="loadGame('spiel5.html')">
-                        <strong>📖 Spiel</strong>
-                        <div style="font-size: 0.75rem; color: #666;">Level 5: Spiel Spiel Spiel</div>
+                    <!-- Button 5 -->
+                    <button class="w-full game-card-modern bg-white p-3 rounded-xl flex items-center gap-3 text-left shadow-sm" onclick="loadGame('spiel5.html')">
+                        <div class="text-xl bg-purple-50 w-10 h-10 flex items-center justify-center rounded-lg">✨</div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Bonus-Finale</div>
+                            <div class="text-[10px] text-slate-500">Sammle extra Punkte!</div>
+                        </div>
                     </button>
                 </div>
             </div>
         </section>
 
-        <section id="game-view" class="hidden">
-            <button onclick="showMenu()" class="back-btn">⬅ ZURÜCK ZUR KARTE</button>
-            <iframe id="game-frame" name="gameFrame"></iframe>
+        <section id="game-view" class="hidden fixed inset-0 bg-white z-[200] flex flex-col p-4">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg">⬅ ZURÜCK</button>
+                <div class="font-bold text-slate-400 uppercase text-xs tracking-widest">Abenteuer läuft...</div>
+            </div>
+            <iframe id="game-frame" class="flex-1 w-full rounded-2xl border-none bg-slate-50 shadow-inner"></iframe>
         </section>
     </main>
 
-    <div id="win-overlay" class="hidden">
-        <div class="win-content">
-            <h2>Karte abgeschlossen! 🎉</h2>
-            <p>Du hast alle Geheimnisse gelüftet. Hier ist dein Meisterschatz:</p>
-            <span id="reward-emoji" class="big-treasure">💎</span>
-            <p>Dieser Schatz wandert in deine Tasche!</p>
-            <button class="next-btn" style="background: #4caf50; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer;" onclick="startNextMap()">Nächste Karte entdecken ⛵</button>
+    <!-- Win Overlay -->
+    <div id="win-overlay" class="hidden fixed inset-0 bg-black/80 z-[1000] flex items-center justify-center p-6 text-center">
+        <div class="bg-white p-8 rounded-[32px] max-w-sm shadow-2xl">
+            <h2 class="text-xl font-bold mb-2">Karte geschafft! 🎉</h2>
+            <p class="text-slate-600 mb-6 text-sm">Du hast alle Schätze auf dieser Insel gefunden.</p>
+            <span id="reward-emoji" class="text-6xl block mb-6">💎</span>
+            <button onclick="startNextMap()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-all">
+                Nächste Insel ⛵
+            </button>
         </div>
     </div>
 
     <script>
+        // Die Bilder werden direkt aus deinem Ordner geladen
         const mapImages = ['karte.png', 'karte2.png', 'karte3.png', 'karte4.png', 'karte5.png'];
-        const masterTreasures = ["💵", "🏆", "👑", "🦄", "💍", "🔱", "🧿", "✨", "🏆", "🌈"];
+        const masterTreasures = ["💵", "🏆", "👑", "🦄", "💍", "🔱", "🧿", "✨", "🌈"];
         const gemEmojis = ["💰", "🐚", "🧚"];
 
         const initialGameState = {
@@ -386,7 +258,7 @@
                 { id: 2, name: "Strand", status: "locked", emoji: "🐚", top: "85%", left: "63.4%" },
                 { id: 3, name: "Vulkan", status: "locked", emoji: "🌋", top: "69%", left: "85%" },
                 { id: 4, name: "Stein", status: "locked", emoji: "🪨", top: "63%", left: "51%" },
-                { id: 5, name: "Berg", status: "locked", emoji: "🏔️", top: "55%", left: "22%" },
+                { id: 5, name: "Berg", status: "locked", emoji: "🏔️", top: "22%", left: "88%" },
                 { id: 6, name: "Höhle", status: "locked", emoji: "🗻", top: "42%", left: "41%" },
                 { id: 7, name: "See", status: "locked", emoji: "🏞️", top: "37%", left: "70%" },
                 { id: 8, name: "Wald", status: "locked", emoji: "🌳", top: "22%", left: "88%" },
@@ -399,17 +271,11 @@
         let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || JSON.parse(JSON.stringify(initialGameState));
 
         window.loadGame = function(url) {
-            const gameView = document.getElementById('game-view');
-            const menuView = document.getElementById('menu-view');
-            const gameFrame = document.getElementById('game-frame');
-
-            menuView.classList.add('hidden');
-            gameView.classList.remove('hidden');
-            gameFrame.src = url;
+            document.getElementById('game-view').classList.remove('hidden');
+            document.getElementById('game-frame').src = url;
         };
 
         window.showMenu = function() {
-            document.getElementById('menu-view').classList.remove('hidden');
             document.getElementById('game-view').classList.add('hidden');
             document.getElementById('game-frame').src = "about:blank";
             renderMap();
@@ -417,37 +283,30 @@
 
         function renderMap() {
             const container = document.getElementById('map-container');
-            if (!container) return;
-
             const imgIdx = (gameState.mapLevel - 1) % mapImages.length;
+            
+            // Setzt das Hintergrundbild aus deinem Ordner
             container.style.backgroundImage = `url('${mapImages[imgIdx]}')`;
 
-            container.innerHTML = `
-                <div class="map-ratio-box">
-                    ${gameState.stations.map(s => `
-                        <div class="station ${s.status}" data-station-id="${s.id}" style="top: ${s.top}; left: ${s.left};">
-                            <div class="station-icon" onclick="handleStationClick(${s.id}, 'station')">
-                                ${s.status === 'opened' || s.status === 'unlocked' ? s.emoji : '🔒'}
-                                ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
-                            </div>
-                            <span class="station-label">${s.name}</span>
+            container.innerHTML = gameState.stations.map(s => `
+                <div class="station ${s.status}" data-station-id="${s.id}" style="top: ${s.top}; left: ${s.left};">
+                    <div class="relative" onclick="handleStationClick(${s.id}, 'station')">
+                        <div class="text-3xl filter drop-shadow-sm">
+                            ${s.status === 'opened' || s.status === 'unlocked' ? s.emoji : '🔒'}
                         </div>
-                    `).join('')}
+                        ${s.status === 'unlocked' ? `<div class="mini-chest" onclick="event.stopPropagation(); handleStationClick(${s.id}, 'chest')">🎁</div>` : ''}
+                    </div>
+                    <span class="text-[8px] font-bold bg-white/80 px-1 py-0.5 rounded shadow-sm whitespace-nowrap mt-1">${s.name}</span>
                 </div>
-            `;
+            `).join('');
         }
 
         window.handleStationClick = function(id, targetType) {
             const s = gameState.stations.find(st => st.id === id);
-            
             if (targetType === 'station' && s.status === 'locked') {
-                if (confirm(`${s.name} für 20 Sterne freischalten?`)) {
-                    unlockStation(id);
-                }
+                if (confirm(`${s.name} für 20 Sterne freischalten?`)) unlockStation(id);
             } else if (targetType === 'chest' && s.status === 'unlocked') {
-                if (confirm(`Truhe in ${s.name} für 10 Sterne öffnen?`)) {
-                    openChest(id);
-                }
+                if (confirm(`Truhe in ${s.name} für 10 Sterne öffnen?`)) openChest(id);
             }
         };
 
@@ -457,18 +316,15 @@
                 gameState.stations.find(st => st.id === id).status = 'unlocked';
                 saveAndRefresh();
             } else {
-                alert("Nicht genug Sterne! Spiele ein Abenteuer, um welche zu verdienen.");
+                alert("Du brauchst mehr Sterne!");
             }
         }
 
         function openChest(id) {
             if (gameState.points >= 10) {
                 gameState.points -= 10;
-                
                 const stationEl = document.querySelector(`[data-station-id="${id}"] .mini-chest`);
-                if(stationEl) {
-                    animateGemsToInventory(stationEl);
-                }
+                if(stationEl) animateGemsToInventory(stationEl);
 
                 gameState.stations.find(st => st.id === id).status = 'opened';
                 
@@ -477,16 +333,13 @@
                     saveAndRefresh();
                     checkMapCompletion();
                 }, 850);
-            } else { 
-                alert("Nicht genug Sterne für diese Truhe!"); 
             }
         }
 
         function animateGemsToInventory(sourceEl) {
             const startRect = sourceEl.getBoundingClientRect();
-            const invHeader = document.querySelector('.inventory h3');
+            const invHeader = document.querySelector('h3');
             const endRect = invHeader.getBoundingClientRect();
-
             for (let i = 0; i < 3; i++) {
                 setTimeout(() => {
                     const gem = document.createElement('div');
@@ -495,14 +348,12 @@
                     gem.style.left = startRect.left + 'px';
                     gem.style.top = startRect.top + 'px';
                     document.body.appendChild(gem);
-
                     requestAnimationFrame(() => {
                         gem.style.left = (endRect.left + 20) + 'px';
                         gem.style.top = (endRect.top + 10) + 'px';
                         gem.style.transform = 'scale(0.5) rotate(360deg)';
                         gem.style.opacity = '0';
                     });
-
                     setTimeout(() => gem.remove(), 800);
                 }, i * 150);
             }
@@ -511,25 +362,18 @@
         function updateUI() {
             document.getElementById('points').innerText = gameState.points;
             document.getElementById('current-map-num').innerText = ((gameState.mapLevel - 1) % 5) + 1;
-            
             const invList = document.getElementById('inventory-list');
-            
             if (gameState.inventory.length > 0) {
-                // 1. Zähle die Gegenstände im Inventar
                 const counts = {};
-                gameState.inventory.forEach(item => {
-                    counts[item] = (counts[item] || 0) + 1;
-                });
-
-                // 2. Erzeuge HTML für jedes einzigartige Item
+                gameState.inventory.forEach(item => { counts[item] = (counts[item] || 0) + 1; });
                 invList.innerHTML = Object.keys(counts).map(key => `
-                    <div class="item-slot" title="${key}">
-                        ${key} 
-                        ${counts[key] > 1 ? `<span class="item-count">×${counts[key]}</span>` : ''}
+                    <div class="item-slot">
+                        <span class="text-lg">${key}</span> 
+                        ${counts[key] > 1 ? `<span class="text-[10px] font-bold text-green-600">x${counts[key]}</span>` : ''}
                     </div>
                 `).join('');
             } else {
-                invList.innerHTML = '<p style="font-size: 0.8rem; color: #888;">Schließe eine Karte ab...</p>';
+                invList.innerHTML = '<p class="text-slate-400 text-xs italic">Sammle Schätze...</p>';
             }
         }
 
@@ -550,7 +394,7 @@
         };
 
         window.resetGame = function() {
-            if (confirm("Wirklich alles zurücksetzen?")) {
+            if (confirm("Alles zurücksetzen?")) {
                 gameState = JSON.parse(JSON.stringify(initialGameState));
                 localStorage.removeItem('wortAbenteuerState');
                 saveAndRefresh();
@@ -564,16 +408,11 @@
         }
 
         window.addStars = function(amount) {
-            const val = parseInt(amount);
-            if(isNaN(val)) return;
-            gameState.points += val;
+            gameState.points += parseInt(amount) || 0;
             saveAndRefresh();
         };
 
-        window.onload = () => { 
-            updateUI(); 
-            renderMap(); 
-        };
+        window.onload = () => { updateUI(); renderMap(); };
     </script>
 </body>
 </html>
