@@ -70,6 +70,7 @@
             border-radius: 24px;
             box-shadow: 0 15px 45px rgba(0,0,0,0.3);
             min-height: 200px; 
+            background-image: url('karte.png');
         }
 
         .station {
@@ -163,7 +164,7 @@
             <h2 class="text-xs font-bold mb-2 text-slate-500 text-center uppercase tracking-[0.2em]" id="island-name">Geheimnisvolle Insel</h2>
             <div class="map-wrapper">
                 <div id="map-container">
-                    <!-- Stationen via JS -->
+                    <!-- Stationen werden via JS geladen -->
                 </div>
             </div>
         </section>
@@ -183,7 +184,6 @@
             <div class="glass-card p-5">
                 <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest">Wähle eine Mission</h3>
                 <div class="space-y-3">
-                    <!-- Mission 1 -->
                     <button class="w-full game-card-modern bg-emerald-100 border-emerald-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel1.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🌳</div>
                         <div>
@@ -192,7 +192,6 @@
                         </div>
                     </button>
                     
-                    <!-- Mission 2 -->
                     <button class="w-full game-card-modern bg-orange-100 border-orange-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel2.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
                         <div>
@@ -201,7 +200,6 @@
                         </div>
                     </button>
 
-                    <!-- Mission 3 -->
                     <button class="w-full game-card-modern bg-pink-100 border-pink-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel3.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
                         <div>
@@ -210,7 +208,6 @@
                         </div>
                     </button>
 
-                    <!-- Mission 4 (Wiederhergestellt) -->
                     <button class="w-full game-card-modern bg-sky-100 border-sky-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel4.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">📖</div>
                         <div>
@@ -219,7 +216,6 @@
                         </div>
                     </button>
 
-                    <!-- Mission 5 (Wiederhergestellt) -->
                     <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">✨</div>
                         <div>
@@ -256,25 +252,36 @@
         const masterTreasures = ["🏆", "👑", "🦄", "💍", "🔱", "🧿", "✨", "🌈", "🗿"];
         const gemEmojis = ["💎", "🪙", "🐚", "🧚"];
 
+        const initialStations = [
+            { id: 1, name: "Schiff", status: "locked", emoji: "🚢", top: "93%", left: "24.7%" },
+            { id: 2, name: "Strand", status: "locked", emoji: "🐚", top: "86%", left: "63.4%" },
+            { id: 3, name: "Vulkan", status: "locked", emoji: "🌋", top: "70%", left: "85%" },
+            { id: 4, name: "Stein", status: "locked", emoji: "🪨", top: "64%", left: "51%" },
+            { id: 5, name: "Berg", status: "locked", emoji: "🏔️", top: "58.5%", left: "24%" }, // Exakt am leeren Kreis in image_a2f8fe.jpg
+            { id: 6, name: "Höhle", status: "locked", emoji: "🗻", top: "43%", left: "41%" },
+            { id: 7, name: "See", status: "locked", emoji: "🏞️", top: "38%", left: "70%" },
+            { id: 8, name: "Wald", status: "locked", emoji: "🌳", top: "23%", left: "88%" },
+            { id: 9, name: "Hütte", status: "locked", emoji: "🛖", top: "17%", left: "64%" },
+            { id: 10, name: "Schatz", status: "locked", emoji: "🪙", top: "15%", left: "34.5%" }
+        ];
+
         const initialGameState = {
             points: 50,
             mapLevel: 1,
-            stations: [
-                { id: 1, name: "Schiff", status: "locked", emoji: "🚢", top: "93%", left: "24.7%" },
-                { id: 2, name: "Strand", status: "locked", emoji: "🐚", top: "86%", left: "63.4%" },
-                { id: 3, name: "Vulkan", status: "locked", emoji: "🌋", top: "70%", left: "85%" },
-                { id: 4, name: "Stein", status: "locked", emoji: "🪨", top: "64%", left: "51%" },
-                { id: 5, name: "Berg", status: "locked", emoji: "🏔️", top: "50%", left: "23%" },
-                { id: 6, name: "Höhle", status: "locked", emoji: "🗻", top: "43%", left: "41%" },
-                { id: 7, name: "See", status: "locked", emoji: "🏞️", top: "38%", left: "70%" },
-                { id: 8, name: "Wald", status: "locked", emoji: "🌳", top: "23%", left: "88%" },
-                { id: 9, name: "Hütte", status: "locked", emoji: "🛖", top: "17%", left: "64%" },
-                { id: 10, name: "Schatz", status: "locked", emoji: "🪙", top: "15%", left: "34.5%" }
-            ],
+            stations: JSON.parse(JSON.stringify(initialStations)),
             inventory: []
         };
 
-        let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || JSON.parse(JSON.stringify(initialGameState));
+        let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || initialGameState;
+
+        if (gameState.stations.length < 10) {
+            initialStations.forEach(is => {
+                if (!gameState.stations.find(s => s.id === is.id)) {
+                    gameState.stations.push(JSON.parse(JSON.stringify(is)));
+                }
+            });
+            gameState.stations.sort((a,b) => a.id - b.id);
+        }
 
         window.loadGame = function(url) {
             document.getElementById('game-view').classList.remove('hidden');
@@ -320,7 +327,7 @@
                 gameState.stations.find(st => st.id === id).status = 'unlocked';
                 saveAndRefresh();
             } else {
-                alert("Nicht genug Sterne!");
+                alert("Nicht genug Sterne! Spiele eine Mission, um welche zu sammeln.");
             }
         }
 
@@ -400,7 +407,7 @@
         };
 
         window.resetGame = function() {
-            if (confirm("Alles zurücksetzen?")) {
+            if (confirm("Möchtest du wirklich alles zurücksetzen?")) {
                 gameState = JSON.parse(JSON.stringify(initialGameState));
                 localStorage.removeItem('wortAbenteuerState');
                 saveAndRefresh();
@@ -413,7 +420,6 @@
             renderMap();
         }
 
-        /* Schnittstelle für Sterne-Updates aus den Spielen */
         window.addStars = function(amount) {
             gameState.points += parseInt(amount) || 0;
             saveAndRefresh();
