@@ -22,9 +22,8 @@
             background-color: var(--bg-body);
             color: #1e293b;
             margin: 0;
-            /* Nutzt die volle dynamische Viewport-Höhe für iPads */
             height: 100vh;
-            height: 100dvh;
+            height: 100dvh; /* Optimale iPad-Höhe */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -54,9 +53,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
             overflow: hidden;
-            min-height: 0; /* Wichtig für iPad-Flex */
+            min-height: 0;
         }
 
         #map-container {
@@ -68,9 +67,9 @@
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
-            border: 10px solid #e7d8c1;
-            border-radius: 24px;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+            border: 8px solid #e7d8c1;
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.2);
             background-image: url('karte.png');
         }
 
@@ -161,8 +160,8 @@
 
     <main class="flex-1 flex p-4 gap-4 overflow-hidden min-h-0 h-full">
         
-        <!-- Linke Spalte: Karte (Nutzt h-full um den Platz zu erzwingen) -->
-        <section class="flex-[1.25] map-viewport glass-card p-4 h-full">
+        <!-- Linke Spalte: Karte (Wieder breiter durch flex-1) -->
+        <section class="flex-1 map-viewport glass-card p-4 h-full">
             <h2 class="text-xs font-bold mb-2 text-slate-500 text-center uppercase tracking-[0.2em]" id="island-name">Geheimnisvolle Insel</h2>
             <div class="map-wrapper">
                 <div id="map-container">
@@ -171,8 +170,8 @@
             </div>
         </section>
 
-        <!-- Rechte Spalte: Rucksack und Missionen -->
-        <section class="flex-[1.25] flex flex-col gap-4 overflow-hidden h-full">
+        <!-- Rechte Spalte: Rucksack und Missionen (Ebenfalls flex-1) -->
+        <section class="flex-1 flex flex-col gap-4 overflow-hidden h-full">
             
             <!-- Rucksack: Fixiert oben -->
             <div class="glass-card p-5 border-l-8 border-emerald-500 shrink-0">
@@ -185,16 +184,17 @@
                 </div>
             </div>
 
-            <!-- Missionsliste: Nutzt den gesamten restlichen Platz -->
+            <!-- Missionsliste: Zweispaltiges Grid -->
              <div class="glass-card p-5 flex-1 flex flex-col min-h-0">
                 <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest shrink-0">Wähle eine Mission</h3>
-                <div class="space-y-2 overflow-y-auto pr-1 flex-1">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 overflow-y-auto pr-1 flex-1 content-start">
                     
                     <button class="w-full game-card-modern bg-emerald-100 border-emerald-300 p-2 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel1.html')">
                         <div class="text-xl bg-white p-1 rounded-lg shadow-sm">🌳</div>
                         <div>
                             <div class="font-bold text-emerald-900 text-base leading-tight">Wortstamm-Baum</div>
-                            <div class="text-[11px] text-emerald-700">Finde die Wortfamilien</div>
+                            <div class="text-[11px] text-emerald-700">Wortfamilien</div>
                         </div>
                     </button>
                     
@@ -202,7 +202,7 @@
                         <div class="text-xl bg-white p-1 rounded-lg shadow-sm">🧪</div>
                         <div>
                             <div class="font-bold text-orange-900 text-base leading-tight">Wort-Labor</div>
-                            <div class="text-[11px] text-orange-700">Wortstämme finden & teilen</div>
+                            <div class="text-[11px] text-orange-700">Stämme teilen</div>
                         </div>
                     </button>
 
@@ -210,7 +210,7 @@
                         <div class="text-xl bg-white p-1 rounded-lg shadow-sm">😈</div>
                         <div>
                             <div class="font-bold text-pink-900 text-base leading-tight">Eindringlinge</div>
-                            <div class="text-[11px] text-pink-700">Wer gehört nicht dazu?</div>
+                            <div class="text-[11px] text-pink-700">Wer gehört weg?</div>
                         </div>
                     </button>
 
@@ -218,22 +218,22 @@
                         <div class="text-xl bg-white p-1 rounded-lg shadow-sm">🧺</div>
                         <div>
                             <div class="font-bold text-sky-900 text-base leading-tight">Wortartenregen</div>
-                            <div class="text-[11px] text-sky-700">Wörter fangen & sortieren</div>
+                            <div class="text-[11px] text-sky-700">Wörter sortieren</div>
                         </div>
                     </button>
 
-                    <!-- FIX: Die Klasse 'italic' wurde hier entfernt -->
                     <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-2 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
                         <div class="text-xl bg-white p-1 rounded-lg shadow-sm">🔍</div>
                         <div>
                             <div class="font-bold text-amber-900 text-base leading-tight">Satzgliederdetektiv</div>
-                            <div class="text-[11px] text-amber-700">Bestimme die Satzglieder</div>
+                            <div class="text-[11px] text-amber-700">Glieder bestimmen</div>
                         </div>
                     </button>
                 </div>
             </div>
         </section>
 
+        <!-- Fullscreen Game Container -->
         <section id="game-view" class="hidden fixed inset-0 bg-slate-900/95 z-[200] flex flex-col p-4 backdrop-blur-md">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 text-lg">⬅ ZURÜCK</button>
@@ -242,17 +242,6 @@
             <iframe id="game-frame" class="flex-1 w-full rounded-2xl border-none bg-white shadow-2xl"></iframe>
         </section>
     </main>
-
-    <div id="win-overlay" class="hidden fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-6 text-center backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-[32px] max-w-sm shadow-2xl border-4 border-emerald-400">
-            <h2 class="text-2xl font-bold mb-2 text-slate-800">Insel geschafft! 🎉</h2>
-            <p class="text-slate-600 mb-6 text-sm font-medium">Du hast alle Schätze auf dieser Insel gehoben!</p>
-            <span id="reward-emoji" class="text-7xl block mb-8 drop-shadow-lg">💎</span>
-            <button onclick="startNextMap()" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-600 transition-all shadow-lg active:translate-y-1">
-                Nächste Insel ⛵
-            </button>
-        </div>
-    </div>
 
     <script>
         const mapImages = ['karte.png', 'karte2.png', 'karte3.png', 'karte4.png', 'karte5.png'];
@@ -279,7 +268,7 @@
             inventory: []
         };
 
-        // Synchronisation
+        // Synchronisation der Stationen
         initialStations.forEach(is => {
             const existing = gameState.stations.find(s => s.id === is.id);
             if (!existing) {
