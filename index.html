@@ -25,7 +25,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; /* Verhindert Scrollen auf dem Body */
         }
 
         .glass-card {
@@ -169,9 +169,10 @@
             </div>
         </section>
 
-        <section class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+        <section class="flex-1 flex flex-col gap-4 overflow-hidden">
             
-            <div class="glass-card p-5 border-l-8 border-emerald-500">
+            <!-- Rucksack: Bleibt oben fixiert -->
+            <div class="glass-card p-5 border-l-8 border-emerald-500 shrink-0">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2">🎒 Dein Rucksack</h3>
                     <button onclick="resetGame()" class="text-[11px] uppercase font-bold text-slate-400 hover:text-red-500">Reset ♻️</button>
@@ -181,14 +182,15 @@
                 </div>
             </div>
 
-            <div class="glass-card p-5">
-                <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest">Wähle eine Mission</h3>
-                <div class="space-y-3">
+            <!-- Missionsliste: Nur dieser Bereich ist scrollbar -->
+            <div class="glass-card p-5 flex-1 flex flex-col min-h-0">
+                <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest shrink-0">Wähle eine Mission</h3>
+                <div class="space-y-3 overflow-y-auto pr-1 flex-1">
                     <button class="w-full game-card-modern bg-emerald-100 border-emerald-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel1.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🌳</div>
                         <div>
                             <div class="font-bold text-emerald-900 text-base leading-tight">Wortstamm-Baum</div>
-                            <div class="text-[12px] text-emerald-700">Level 1 • Einfach</div>
+                            <div class="text-[12px] text-emerald-700">Level 1 • Finde die Wortfamilien</div>
                         </div>
                     </button>
                     
@@ -196,7 +198,7 @@
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
                         <div>
                             <div class="font-bold text-orange-900 text-base leading-tight">Wort-Labor</div>
-                            <div class="text-[12px] text-orange-700">Level 2 • Normal</div>
+                            <div class="text-[12px] text-orange-700">Level 2 • Finde Wortstämme und teile Wörter auf</div>
                         </div>
                     </button>
 
@@ -204,23 +206,23 @@
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
                         <div>
                             <div class="font-bold text-pink-900 text-base leading-tight">Eindringlinge</div>
-                            <div class="text-[12px] text-pink-700">Level 3 • Wortfamilien</div>
+                            <div class="text-[12px] text-pink-700">Level 3 • Wer gehört nicht zur Wortfamilie?</div>
                         </div>
                     </button>
 
                     <button class="w-full game-card-modern bg-sky-100 border-sky-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel4.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">📖</div>
                         <div>
-                            <div class="font-bold text-sky-900 text-base leading-tight">Lese-Profi</div>
-                            <div class="text-[12px] text-sky-700">Level 4 • Mittel</div>
+                            <div class="font-bold text-sky-900 text-base leading-tight">Wortartenregen</div>
+                            <div class="text-[12px] text-sky-700">Level 4 • Fang die Wörter und sortiere</div>
                         </div>
                     </button>
 
                     <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">✨</div>
                         <div>
-                            <div class="font-bold text-amber-900 text-base italic leading-tight">Bonus-Arena</div>
-                            <div class="text-[12px] text-amber-700">Sterne sammeln!</div>
+                            <div class="font-bold text-amber-900 text-base italic leading-tight">Satzgliedetektiv</div>
+                            <div class="text-[12px] text-amber-700">Bestimme die Satzglieder!</div>
                         </div>
                     </button>
                 </div>
@@ -274,15 +276,12 @@
 
         let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || initialGameState;
 
-        // FIX 1: Robuste Stations-Synchronisation per ID statt per Array-Länge.
-        // Fehlende Stationen werden ergänzt, veraltete Koordinaten/Emojis aktualisiert.
+        // Synchronisation der Stationen
         initialStations.forEach(is => {
             const existing = gameState.stations.find(s => s.id === is.id);
             if (!existing) {
                 gameState.stations.push(JSON.parse(JSON.stringify(is)));
             } else {
-                // Koordinaten und Emojis immer aus initialStations übernehmen,
-                // damit Code-Updates sofort greifen (nur Status bleibt erhalten).
                 existing.top   = is.top;
                 existing.left  = is.left;
                 existing.emoji = is.emoji;
@@ -321,7 +320,7 @@
         }
 
         window.handleStationClick = function(id, targetType) {
-            const s = gameState.stations.find(st => st.id === id);
+            const s = gameState.stations.find(st => st.stID === id || st.id === id);
             if (targetType === 'station' && s.status === 'locked') {
                 if (confirm(`${s.name} entdecken? (20 Sterne)`)) unlockStation(id);
             } else if (targetType === 'chest' && s.status === 'unlocked') {
@@ -402,7 +401,6 @@
             if (gameState.stations.every(st => st.status === 'opened')) {
                 const randomTreasure = masterTreasures[Math.floor(Math.random() * masterTreasures.length)];
                 document.getElementById('reward-emoji').innerText = randomTreasure;
-                // FIX 2: Master-Schatz sofort speichern, damit er nach Reload erhalten bleibt.
                 gameState.inventory.push(randomTreasure);
                 saveAndRefresh();
                 document.getElementById('win-overlay').classList.remove('hidden');
@@ -411,8 +409,6 @@
 
         window.startNextMap = function() {
             gameState.mapLevel++;
-            // FIX 3: Stationen komplett aus initialStations neu aufbauen,
-            // damit aktualisierte Positionen aus dem Code übernommen werden.
             gameState.stations = JSON.parse(JSON.stringify(initialStations));
             document.getElementById('win-overlay').classList.add('hidden');
             saveAndRefresh();
