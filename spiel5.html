@@ -207,34 +207,56 @@
 
     <script>
         const DATA = [
-            {
-                words: ["Der", "lustige", "Clown", "jongliert", "mit", "Bällen."],
-                cuts: [2, 3],
-                mapping: [
-                    { indices: [0,1,2], type: "subjekt" },
-                    { indices: [3], type: "praedikat" },
-                    { indices: [4,5], type: "objekt" }
-                ]
-            },
-            {
-                words: ["Heute", "essen", "wir", "eine", "Pizza."],
-                cuts: [0, 1, 2],
-                mapping: [
-                    { indices: [0], type: "objekt" },
-                    { indices: [1], type: "praedikat" },
-                    { indices: [2], type: "subjekt" },
-                    { indices: [3,4], type: "objekt" }
-                ]
-            },
-            {
-                words: ["Das", "kleine", "Kind", "malt", "ein", "Bild."],
-                cuts: [2, 3],
-                mapping: [
-                    { indices: [0,1,2], type: "subjekt" },
-                    { indices: [3], type: "praedikat" },
-                    { indices: [4,5], type: "objekt" }
-                ]
-            }
+           { words: ["Der", "Hund", "jagt", "die", "Katze."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Die", "Mutter", "backt", "einen", "Kuchen."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Wir", "lesen", "ein", "spannendes", "Buch."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Leo", "schenkt", "ihr", "eine", "Blume."], cuts: [0, 1, 2], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2], type: "objekt" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Das", "Mädchen", "wirft", "den", "Ball."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Der", "Lehrer", "erklärt", "die", "Aufgabe."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Ein", "Vogel", "baut", "ein", "Nest."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Die", "Kinder", "singen", "ein", "Lied."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Papa", "repariert das", "alte", "Fahrrad."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Sie", "sucht", "ihren", "kleinen", "Schlüssel."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Der", "Koch", "salzt", "die", "Suppe."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Wir", "besuchen", "unsere", "Oma."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3], type: "objekt" }] },
+{ words: ["Der", "Wind", "weht", "die", "Blätter", "fort."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2,5], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Ich", "trinke", "einen", "kalten", "Saft."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Paul", "öffnet", "das", "große", "Fenster."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Die", "Katze", "frisst", "den", "Fisch."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Thomas", "schreibt", "eine", "Postkarte."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3], type: "objekt" }] },
+{ words: ["Das", "Pferd", "frisst", "frisches", "Heu."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Emma", "verliert", "ihren", "Handschuh."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3], type: "objekt" }] },
+{ words: ["Der", "Gärtner", "gießt", "die", "Blumen."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Wir", "gewinnen", "das", "Fußballspiel."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3], type: "objekt" }] },
+{ words: ["Der", "Schüler", "löscht", "die", "Tafel."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Sie", "kaufen", "viele", "Äpfel."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3], type: "objekt" }] },
+{ words: ["Mein", "Bruder", "holt", "das", "Auto."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Der", "Arzt", "hilft", "dem", "Kind."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Die", "Polizei", "sucht", "den", "Dieb."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Wir", "brauchen", "einen", "neuen", "Plan."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Das", "Baby", "braucht", "seinen", "Schnuller."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Der", "Bauer", "melkt", "die", "Kuh."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Ein", "Auto", "überholt", "den", "Bus."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Die", "Oma", "strickt", "eine", "Mütze."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Der", "Löwe", "beobachtet", "die", "Gazelle."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Wir", "bauen", "eine", "große", "Sandburg."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Der", "Briefträger", "bringt", "ein", "Paket."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Das", "Feuer", "wärmt", "die", "Wanderer."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Jonas", "isst", "ein", "leckeres", "Eis."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Die", "Sonne", "erwärmt", "das", "Wasser."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Der", "Maler", "streicht", "die", "Wand."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Sie", "liebt", "ihre", "kleine", "Schwester."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Wir", "verstehen", "dieses", "schwere", "Rätsel."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Der", "Kapitän", "steuert", "das", "Schiff."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Die", "Eule", "fängt", "eine", "Maus."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Ein", "Hase", "knabbert", "eine", "Karotte."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Der", "Schreiner", "sägt", "das", "Holz."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Wir", "feiern", "meinen", "zehnten", "Geburtstag."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Das", "Flugzeug", "verlässt", "die", "Landebahn."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Der", "Fischer", "zieht", "das", "Netz."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Sie", "schneidet", "das", "frische", "Brot."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] },
+{ words: ["Der", "Detektiv", "löst", "den", "Fall."], cuts: [1, 2], mapping: [{ indices: [0,1], type: "subjekt" }, { indices: [2], type: "praedikat" }, { indices: [3,4], type: "objekt" }] },
+{ words: ["Wir", "begrüßen", "den", "neuen", "Mitschüler."], cuts: [0, 1], mapping: [{ indices: [0], type: "subjekt" }, { indices: [1], type: "praedikat" }, { indices: [2,3,4], type: "objekt" }] }
         ];
 
         class Game {
