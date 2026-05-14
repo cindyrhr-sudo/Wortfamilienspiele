@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wort-Abenteuer: Entdecker-Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15,17 +15,19 @@
             --card-bg: rgba(255, 255, 255, 0.95);
         }
 
-        html { font-size: 110%; }
+        html { font-size: 110%; height: 100%; }
 
         body {
             font-family: 'Fredoka', sans-serif;
             background-color: var(--bg-body);
             color: #1e293b;
             margin: 0;
+            /* Nutzt die volle dynamische Viewport-Höhe für iPads */
             height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Verhindert Scrollen auf der ganzen Seite */
+            overflow: hidden;
         }
 
         .glass-card {
@@ -54,6 +56,7 @@
             align-items: center;
             padding: 20px;
             overflow: hidden;
+            min-height: 0; /* Wichtig für iPad-Flex */
         }
 
         #map-container {
@@ -68,7 +71,6 @@
             border: 10px solid #e7d8c1;
             border-radius: 24px;
             box-shadow: 0 15px 45px rgba(0,0,0,0.3);
-            min-height: 200px;
             background-image: url('karte.png');
         }
 
@@ -141,7 +143,7 @@
         }
     </style>
 </head>
-<body>
+<body class="flex flex-col overflow-hidden">
 
     <header class="bg-slate-800 px-6 py-3 flex justify-between items-center shadow-lg z-50 text-white shrink-0">
         <h1 class="text-xl font-bold flex items-center gap-2">
@@ -157,10 +159,10 @@
         </div>
     </header>
 
-    <main class="flex-1 flex p-4 gap-4 overflow-hidden h-full">
+    <main class="flex-1 flex p-4 gap-4 overflow-hidden min-h-0 h-full">
         
-        <!-- Linke Spalte: Karte -->
-        <section class="flex-[1.5] map-viewport glass-card p-4">
+        <!-- Linke Spalte: Karte (Nutzt h-full um den Platz zu erzwingen) -->
+        <section class="flex-[1.5] map-viewport glass-card p-4 h-full">
             <h2 class="text-xs font-bold mb-2 text-slate-500 text-center uppercase tracking-[0.2em]" id="island-name">Geheimnisvolle Insel</h2>
             <div class="map-wrapper">
                 <div id="map-container">
@@ -184,7 +186,7 @@
             </div>
 
             <!-- Missionsliste: Nutzt den gesamten restlichen Platz -->
-            <div class="glass-card p-5 flex-1 flex flex-col min-h-0">
+             <div class="glass-card p-5 flex-1 flex flex-col min-h-0">
                 <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest shrink-0">Wähle eine Mission</h3>
                 <!-- Der innere Bereich scrollt, die Karte selbst bleibt stabil -->
                 <div class="space-y-3 overflow-y-auto pr-1 flex-1">
@@ -276,7 +278,7 @@
             inventory: []
         };
 
-        // Synchronisation sicherstellen
+        // Synchronisation
         initialStations.forEach(is => {
             const existing = gameState.stations.find(s => s.id === is.id);
             if (!existing) {
