@@ -183,6 +183,7 @@
             <div class="glass-card p-5">
                 <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest">Wähle eine Mission</h3>
                 <div class="space-y-3">
+                    <!-- Mission 1 -->
                     <button class="w-full game-card-modern bg-emerald-100 border-emerald-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel1.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🌳</div>
                         <div>
@@ -191,6 +192,7 @@
                         </div>
                     </button>
                     
+                    <!-- Mission 2 -->
                     <button class="w-full game-card-modern bg-orange-100 border-orange-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel2.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🧪</div>
                         <div>
@@ -199,6 +201,7 @@
                         </div>
                     </button>
 
+                    <!-- Mission 3 -->
                     <button class="w-full game-card-modern bg-pink-100 border-pink-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel3.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">🔍</div>
                         <div>
@@ -207,6 +210,7 @@
                         </div>
                     </button>
 
+                    <!-- Mission 4 (Wiederhergestellt) -->
                     <button class="w-full game-card-modern bg-sky-100 border-sky-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel4.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">📖</div>
                         <div>
@@ -215,6 +219,7 @@
                         </div>
                     </button>
 
+                    <!-- Mission 5 (Wiederhergestellt) -->
                     <button class="w-full game-card-modern bg-amber-100 border-amber-300 p-3 rounded-xl flex items-center gap-3 text-left" onclick="loadGame('spiel5.html')">
                         <div class="text-2xl bg-white p-2 rounded-lg shadow-sm">✨</div>
                         <div>
@@ -270,14 +275,6 @@
         };
 
         let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || JSON.parse(JSON.stringify(initialGameState));
-
-        /* KORREKTUR: Fehlende Stationen hinzufügen falls alter Spielstand vorhanden */
-        if(gameState.stations.length < initialGameState.stations.length) {
-            const currentIds = gameState.stations.map(s => s.id);
-            initialGameState.stations.forEach(is => {
-                if(!currentIds.includes(is.id)) gameState.stations.push(JSON.parse(JSON.stringify(is)));
-            });
-        }
 
         window.loadGame = function(url) {
             document.getElementById('game-view').classList.remove('hidden');
@@ -416,7 +413,7 @@
             renderMap();
         }
 
-        /* WICHTIG: Schnittstelle für die Spiele in den iframes */
+        /* Schnittstelle für Sterne-Updates aus den Spielen */
         window.addStars = function(amount) {
             gameState.points += parseInt(amount) || 0;
             saveAndRefresh();
