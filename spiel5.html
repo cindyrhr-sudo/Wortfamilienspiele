@@ -12,7 +12,7 @@
             --color-praedikat: #2b7fff; 
             --color-objekt: #2ecc71;   
             --comic-border: #1a1a1a;
-            --bg-comic: #f0f7ff;
+            --bg-comic: #e0f2fe; /* Freundliches Hellblau */
         }
 
         body {
@@ -23,7 +23,7 @@
             height: 100vh;
             width: 100vw;
             margin: 0;
-            overflow: hidden; /* Verhindert Scrollen auf dem Tablet */
+            overflow: hidden; 
             display: flex;
             flex-direction: column;
             user-select: none;
@@ -53,12 +53,12 @@
             display: inline-block;
             background: white;
             border: 3px solid var(--comic-border);
-            padding: 0.5rem 1rem;
-            margin: 0.2rem;
-            border-radius: 0.8rem;
+            padding: 0.6rem 1.2rem;
+            margin: 0.25rem;
+            border-radius: 1rem;
             font-weight: 700;
-            font-size: clamp(1rem, 4vw, 1.4rem);
-            box-shadow: 3px 3px 0px var(--comic-border);
+            font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+            box-shadow: 4px 4px 0px var(--comic-border);
             cursor: pointer;
             transition: transform 0.1s;
             touch-action: manipulation;
@@ -66,7 +66,7 @@
 
         .word-token:active {
             transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px var(--comic-border);
+            box-shadow: 2px 2px 0px var(--comic-border);
         }
 
         .bg-subjekt { background-color: var(--color-subjekt) !important; color: white !important; }
@@ -74,37 +74,37 @@
         .bg-objekt { background-color: var(--color-objekt) !important; color: white !important; }
 
         .cut-zone {
-            width: 34px; /* Breite Touch-Fläche */
-            height: 50px;
+            width: 44px; /* Vergrößert für Touch */
+            height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            margin: 0 -10px;
+            margin: 0 -15px;
             z-index: 10;
             -webkit-tap-highlight-color: transparent;
         }
 
         .cut-line {
-            width: 4px;
+            width: 5px;
             height: 25px;
             background: #cbd5e1;
-            border-radius: 2px;
+            border-radius: 3px;
             transition: all 0.2s;
         }
 
         .cut-zone.active .cut-line {
             background: var(--comic-border);
-            height: 40px;
-            width: 6px;
+            height: 45px;
+            width: 7px;
         }
 
         .btn-comic {
             background: #ffde00;
             border: 3px solid var(--comic-border);
             box-shadow: 4px 4px 0px var(--comic-border);
-            padding: 0.6rem 1.5rem;
-            border-radius: 1rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 1.2rem;
             font-weight: 900;
             font-size: 1.1rem;
             text-transform: uppercase;
@@ -119,35 +119,38 @@
 
         .paint-pot {
             flex: 1;
-            padding: 0.5rem;
+            padding: 0.6rem;
             border: 3px solid var(--comic-border);
-            border-radius: 0.8rem;
+            border-radius: 1rem;
             font-weight: 800;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: white;
             box-shadow: 3px 3px 0px var(--comic-border);
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
         }
 
         .paint-pot.selected {
-            transform: scale(1.05) translateY(-3px);
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 5px 5px 0px var(--comic-border);
             outline: 3px solid #ffde00;
-            box-shadow: 4px 4px 0px var(--comic-border);
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
         }
         .error-shake { animation: shake 0.3s ease-in-out 2; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="start-screen" class="fixed inset-0 bg-[#6c5ce7] z-[100] flex flex-col items-center justify-center p-6 text-center">
         <div class="mb-6 p-8 bg-white border-[6px] border-black rounded-[3rem] shadow-[12px_12px_0px_rgba(0,0,0,0.3)]">
-            <h1 class="text-5xl font-black mb-4 text-black uppercase">Satzglied<br><span class="text-[#ff3e3e]">Detektiv</span></h1>
-            <p class="text-xl font-bold text-gray-700">Phase 1: Trennen | Phase 2: Färben</p>
+            <h1 class="text-5xl font-black mb-4 text-black uppercase leading-tight">Satzglied<br><span class="text-[#ff3e3e]">Detektiv</span></h1>
+            <p class="text-xl font-bold text-gray-700">Trennen & Färben</p>
         </div>
         <button onclick="game.start()" class="btn-comic text-2xl px-12 py-5 bg-[#ffde00]">
             Starten ⚡
@@ -166,7 +169,7 @@
         <main class="flex-1 flex flex-col justify-center items-center gap-2 overflow-hidden">
             <div id="phase-label" class="bg-[#1a1a1a] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Phase 1: Trennen</div>
             
-            <div id="game-container" class="comic-card w-full p-4 md:p-8 flex flex-wrap justify-center items-center gap-y-2 min-h-[160px]">
+            <div id="game-container" class="comic-card w-full p-6 md:p-10 flex flex-wrap justify-center items-center gap-y-4 min-h-[200px]">
                 <!-- Inhalte via JS -->
             </div>
         </main>
@@ -178,7 +181,7 @@
                 <button id="pot-objekt" onclick="game.selectPot('objekt')" class="paint-pot bg-objekt">OBJEKT</button>
             </div>
 
-            <div class="comic-card p-3 flex items-center gap-4 bg-white border-[3px]">
+            <div class="comic-card p-4 flex items-center gap-4 bg-white border-[3px]">
                 <span id="feedback-icon" class="text-3xl">💡</span>
                 <p id="hint-text" class="font-bold text-sm text-gray-600 leading-tight">Tippe zwischen die Wörter, um die Satzglieder zu trennen!</p>
             </div>
@@ -189,6 +192,17 @@
                 </button>
             </div>
         </footer>
+    </div>
+
+    <div id="win-screen" class="fixed inset-0 bg-white z-[200] hidden flex flex-col items-center justify-center p-6 text-center" data-stars="0">
+        <div class="comic-card p-10 max-w-sm">
+            <div class="text-7xl mb-4">🏆</div>
+            <h2 class="text-4xl font-black mb-2 uppercase">Satz-Held!</h2>
+            <p class="text-xl font-bold text-gray-600 mb-8">Du hast <span id="final-score-val">0</span> Sterne gesammelt.</p>
+            <button onclick="finishGame()" class="btn-comic bg-[#2ecc71] text-white w-full py-4 text-xl">
+                Fertig! 🚀
+            </button>
+        </div>
     </div>
 
     <script>
@@ -206,7 +220,7 @@
                 words: ["Heute", "essen", "wir", "eine", "Pizza."],
                 cuts: [0, 1, 2],
                 mapping: [
-                    { indices: [0], type: "objekt" }, // Zeitumstand/Objektgruppe
+                    { indices: [0], type: "objekt" },
                     { indices: [1], type: "praedikat" },
                     { indices: [2], type: "subjekt" },
                     { indices: [3,4], type: "objekt" }
@@ -297,7 +311,6 @@
                 const level = DATA[this.currentIndex];
                 let errors = 0;
                 
-                // Prüfen auf Fehler
                 for (let i = 0; i < level.words.length - 1; i++) {
                     if (level.cuts.includes(i) !== this.userCuts.has(i)) errors++;
                 }
@@ -305,6 +318,7 @@
                 // PUNKTE NUR BEIM 1. VERSUCH
                 if (this.firstAttemptSplitting) {
                     level.cuts.forEach(cutIndex => {
+                        // 1 Punkt für jeden korrekt gesetzten Schnitt beim 1. Versuch
                         if (this.userCuts.has(cutIndex)) this.score++;
                     });
                     this.firstAttemptSplitting = false;
@@ -312,11 +326,11 @@
                 }
 
                 if (errors === 0) {
-                    this.setFeedback("💥", "BOOM! Richtig getrennt. Jetzt bestimmen wir die Farben!");
+                    this.setFeedback("💥", "Richtig getrennt! Jetzt bestimmen wir die Farben!");
                     this.setButton("Weiter ➔", "#2ecc71", () => this.startPhase2());
                 } else {
                     this.shake();
-                    this.setFeedback("🧐", "Da stimmt was nicht! Korrigiere die Schnitte. (Keine neuen Punkte)");
+                    this.setFeedback("🧐", "Da stimmt was nicht! Korrigiere die Schnitte.");
                 }
             }
 
@@ -327,7 +341,6 @@
                 this.setButton("Prüfen! 🔍", "#ffde00", () => this.check());
                 
                 const level = DATA[this.currentIndex];
-                // Nur die richtigen Schnitte anzeigen
                 for (let i = 0; i < level.words.length - 1; i++) {
                     const zone = document.getElementById(`zone-${i}`);
                     zone.onclick = null;
@@ -353,7 +366,7 @@
                 this.selectedType = type;
                 document.querySelectorAll('.paint-pot').forEach(p => p.classList.remove('selected'));
                 document.getElementById(`pot-${type}`).classList.add('selected');
-                this.setFeedback("🎨", `Färbe jetzt alle Teile für: **${type.toUpperCase()}**`);
+                this.setFeedback("🎨", `Färbe alle Teile für: **${type.toUpperCase()}**`);
             }
 
             checkColoring() {
@@ -363,13 +376,18 @@
                 
                 level.mapping.forEach(group => {
                     const isGroupCorrect = group.indices.every(idx => this.userColors[idx] === group.type);
-                    // Sicherstellen, dass nicht mehr als die Gruppe gefärbt wurde
-                    if (isGroupCorrect) groupsCorrect++;
+                    const noExtraWords = Object.entries(this.userColors).every(([idx, type]) => {
+                        if (type === group.type) return group.indices.includes(parseInt(idx));
+                        return true;
+                    });
+
+                    if (isGroupCorrect && noExtraWords) groupsCorrect++;
                     else allCorrect = false;
                 });
 
                 // PUNKTE NUR BEIM 1. VERSUCH
                 if (this.firstAttemptColoring) {
+                    // Jedes korrekte Satzglied gibt 1 Punkt
                     this.score += groupsCorrect;
                     this.firstAttemptColoring = false;
                     this.updateUI();
@@ -380,7 +398,7 @@
                     this.setButton("Nächster Satz ➔", "#2ecc71", () => this.nextLevel());
                 } else {
                     this.shake();
-                    this.setFeedback("🤔", "Einige Farben stimmen noch nicht. (Punkte bereits gezählt)");
+                    this.setFeedback("🤔", "Einige Farben stimmen noch nicht.");
                 }
             }
 
@@ -419,21 +437,31 @@
             }
 
             finish() {
-                // Punkte übertragen an localStorage
-                const prevStars = parseInt(localStorage.getItem('totalStars') || '0');
-                localStorage.setItem('totalStars', prevStars + this.score);
+                const winScreen = document.getElementById('win-screen');
+                winScreen.dataset.stars = this.score;
+                document.getElementById('final-score-val').innerText = this.score;
+                winScreen.classList.remove('hidden');
+            }
+        }
 
-                document.getElementById('game-container').innerHTML = `
-                    <div class="text-center w-full py-4">
-                        <div class="text-6xl mb-2">🏆</div>
-                        <h2 class="text-3xl font-black mb-1 uppercase">Satz-Held!</h2>
-                        <p class="text-lg font-bold text-gray-600 mb-4">Du hast ${this.score} Sterne gesammelt.</p>
-                        <button onclick="window.location.href='index.html'" class="btn-comic bg-[#6c5ce7] text-white">Zurück zum HQ 🚀</button>
-                    </div>
-                `;
-                document.getElementById('palette').remove();
-                document.getElementById('action-btn').remove();
-                this.setFeedback("✨", "Deine Sterne wurden sicher übertragen!");
+        function finishGame() {
+            // Holt die Anzahl der Sterne aus dem Datenspeicher des Bildschirms
+            const stars = parseInt(document.getElementById('win-screen').dataset.stars) || 0;
+
+            // PRÜFUNG: Gibt es ein übergeordnetes Fenster (das Kontrollzentrum)?
+            // Wenn ja, rufe dort die Funktion 'addStars' auf.
+            if (window.parent && window.parent.addStars) {
+                window.parent.addStars(stars);
+            }
+
+            // Optional: Rufe die Menü-Funktion des Kontrollzentrums auf
+            if (window.parent && window.parent.showMenu) {
+                window.parent.showMenu();
+            }
+            
+            // Fallback für Standalone-Modus (falls kein Parent da ist)
+            if (!(window.parent && window.parent.addStars)) {
+                window.location.href = 'index.html';
             }
         }
 
