@@ -8,16 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #10b981; /* Emerald */
+            --primary: #10b981;
             --primary-dark: #059669;
-            --accent: #fbbf24; /* Amber */
-            --bg-body: #dbeafe; /* Helles Blau aus der Entdecker-Edition */
+            --accent: #fbbf24;
+            --bg-body: #dbeafe;
             --card-bg: rgba(255, 255, 255, 0.95);
         }
 
-        html {
-            font-size: 110%; /* Erhöht die Basis für alle rem-basierten Größen um 10% */
-        }
+        html { font-size: 110%; }
 
         body {
             font-family: 'Fredoka', sans-serif;
@@ -94,7 +92,7 @@
             position: absolute;
             top: -12px;
             right: -12px;
-            font-size: 1.54rem; /* Erhöht von 1.4rem */
+            font-size: 1.54rem;
             background: #fcd34d;
             border: 2px solid white;
             border-radius: 50%;
@@ -138,7 +136,7 @@
             position: fixed;
             z-index: 5000;
             pointer-events: none;
-            font-size: 2.2rem; /* Erhöht von 2rem */
+            font-size: 2.2rem;
             transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
     </style>
@@ -172,7 +170,6 @@
 
         <section class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
             
-            <!-- Rucksack / Tasche -->
             <div class="glass-card p-5 border-l-8 border-emerald-500">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2">🎒 Dein Rucksack</h3>
@@ -183,7 +180,6 @@
                 </div>
             </div>
 
-            <!-- Missionen -->
             <div class="glass-card p-5">
                 <h3 class="font-bold text-slate-500 mb-4 text-[12px] uppercase tracking-widest">Wähle eine Mission</h3>
                 <div class="space-y-3">
@@ -230,7 +226,6 @@
             </div>
         </section>
 
-        <!-- Das Spiel-Fenster (Overlay) - Jetzt korrigiert und nur einmal vorhanden -->
         <section id="game-view" class="hidden fixed inset-0 bg-slate-900/95 z-[200] flex flex-col p-4 backdrop-blur-md">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="showMenu()" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 text-lg">⬅ ZURÜCK</button>
@@ -275,6 +270,14 @@
         };
 
         let gameState = JSON.parse(localStorage.getItem('wortAbenteuerState')) || JSON.parse(JSON.stringify(initialGameState));
+
+        /* KORREKTUR: Fehlende Stationen hinzufügen falls alter Spielstand vorhanden */
+        if(gameState.stations.length < initialGameState.stations.length) {
+            const currentIds = gameState.stations.map(s => s.id);
+            initialGameState.stations.forEach(is => {
+                if(!currentIds.includes(is.id)) gameState.stations.push(JSON.parse(JSON.stringify(is)));
+            });
+        }
 
         window.loadGame = function(url) {
             document.getElementById('game-view').classList.remove('hidden');
@@ -337,6 +340,8 @@
                     saveAndRefresh();
                     checkMapCompletion();
                 }, 850);
+            } else {
+                alert("Nicht genug Sterne!");
             }
         }
 
@@ -411,6 +416,7 @@
             renderMap();
         }
 
+        /* WICHTIG: Schnittstelle für die Spiele in den iframes */
         window.addStars = function(amount) {
             gameState.points += parseInt(amount) || 0;
             saveAndRefresh();
